@@ -3,10 +3,14 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="TitleContent" runat="server">
     Home Page
 </asp:Content>
-
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <h2><%: ViewData["Message"] %></h2>
-    <p>
-        To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
-    </p>
+    <div class="content">
+        <p>
+            Welcome blah blah blah
+        </p>
+        <p>
+            Visit your
+            <%:Html.ActionLink("WhiteBoard Page", "List", "WhiteBoard") %>
+        </p>
+    </div>
 </asp:Content>

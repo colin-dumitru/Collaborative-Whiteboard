@@ -7,14 +7,18 @@ using System.Web.Mvc;
 namespace Cow.Controllers {
     [HandleError]
     public class HomeController : Controller {
-        public ActionResult Index() {
-            
+
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+			
+	    [Authorize]
+        public ActionResult Index() {  
+          
 
             return View();
-        }
 
-        public ActionResult About() {
-            return View();
         }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
     }
 }

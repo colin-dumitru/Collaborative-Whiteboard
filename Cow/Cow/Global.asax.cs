@@ -14,8 +14,14 @@ namespace Cow {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                "Board", // Route name
+                "Board/{action}/{id}", // URL with parameters
+                new { controller = "WhiteBoard", action = "List"} // Parameter defaults
+            );
+
+            routes.MapRoute(
                 "Default", // Route name
-                "{controller}/{action}/{id}", // URL with parameters
+                "{controller}/{action}/", // URL with parameters
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
             );
 

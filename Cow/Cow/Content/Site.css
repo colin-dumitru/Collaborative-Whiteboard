@@ -3,13 +3,20 @@ The base color for this template is #5c87b2. If you'd like
 to use a different color start by replacing all instances of
 #5c87b2 with your new color.
 ----------------------------------------------------------*/
+html
+{
+    height: 100%;
+}
+
 body
 {
-    background-color: #5c87b2;
+    position: relative;
+    background-color: #b6d2fc;
+    height: 100%;
     font-size: .75em;
     font-family: Verdana, Helvetica, Sans-Serif;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
     color: #696969;
 }
 
@@ -84,58 +91,37 @@ first child of the left and right table columns */
 page width. Or, you can specify an exact pixel width. */
 .page
 {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+    
+    position: relative;
+    width: 100%;
 }
 
 #header
 {
     position: relative;
+    border-radius: 0px 0px 10px 10px;
     margin-bottom: 0px;
-    color: #000;
-    padding: 0;
-}
-
-#header h1
-{
-    font-weight: bold;
-    padding: 5px 0;
-    margin: 0;
-    color: #fff;
-    border: none;
-    line-height: 2em;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 32px !important;
+    color: #EEE;
+    width: 100%;
+    height: 30px;
+    background-image: linear-gradient(bottom, rgb(82,82,82) 0%, rgb(92,87,92) 100%);
+    background-image: -o-linear-gradient(bottom, rgb(82,82,82) 0%, rgb(92,87,92) 100%);
+    background-image: -moz-linear-gradient(bottom, rgb(82,82,82) 0%, rgb(92,87,92) 100%);
+    background-image: -webkit-linear-gradient(bottom, rgb(82,82,82) 0%, rgb(92,87,92) 100%);
+    background-image: -ms-linear-gradient(bottom, rgb(82,82,82) 0%, rgb(92,87,92) 100%);
+    box-shadow: 0 0 5px #888;
 }
 
 #main
 {
-    padding: 30px 30px 15px 30px;
-    background-color: #fff;
-    margin-bottom: 30px;
-    _height: 1px; /* only IE6 applies CSS properties starting with an underscore */
-}
-
-#footer
-{
-    color: #999;
-    padding: 10px 0;
-    text-align: center;
-    line-height: normal;
-    margin: 0;
-    font-size: .9em;
+    position:relative;
 }
 
 /* TAB MENU   
 ----------------------------------------------------------*/
 ul#menu
 {
-    border-bottom: 1px #5C87B2 solid;
-    padding: 0 0 2px;
     position: relative;
-    margin: 0;
-    text-align: right;
 }
 
 ul#menu li
@@ -144,72 +130,50 @@ ul#menu li
     list-style: none;
 }
 
-ul#menu li#greeting
-{
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    line-height: 2.8em;
-    color: #fff;
-}
-
 ul#menu li a
 {
-    padding: 10px 20px;
+    padding: 5px;
     font-weight: bold;
     text-decoration: none;
-    line-height: 2.8em;
-    background-color: #e8eef4;
-    color: #034af3;
+    color: #DDD;
+    border-left: 1px solid #AAA;
 }
 
 ul#menu li a:hover
 {
-    background-color: #fff;
+    color: #EEE;
     text-decoration: none;
-}
-
-ul#menu li a:active
-{
-    background-color: #a6e2a6;
-    text-decoration: none;
-}
-
-ul#menu li.selected a
-{
-    background-color: #fff;
-    color: #000;
 }
 
 /* FORM LAYOUT ELEMENTS   
 ----------------------------------------------------------*/
 
-fieldset 
+fieldset
 {
     margin: 1em 0;
     padding: 1em;
     border: 1px solid #CCC;
 }
 
-fieldset p 
+fieldset p
 {
     margin: 2px 12px 10px 10px;
 }
 
-legend 
+legend
 {
     font-size: 1.1em;
     font-weight: 600;
     padding: 2px 4px 8px 4px;
 }
 
-input[type="text"] 
+input[type="text"]
 {
     width: 200px;
     border: 1px solid #CCC;
 }
 
-input[type="password"] 
+input[type="password"]
 {
     width: 200px;
     border: 1px solid #CCC;
@@ -218,24 +182,24 @@ input[type="password"]
 /* TABLE
 ----------------------------------------------------------*/
 
-table 
+table
 {
-  border: solid 1px #e8eef4;
-  border-collapse: collapse;
+    border: solid 1px #e8eef4;
+    border-collapse: collapse;
 }
 
-table td 
+table td
 {
-  padding: 5px;   
-  border: solid 1px #e8eef4;
+    padding: 5px;
+    border: solid 1px #e8eef4;
 }
 
 table th
 {
-  padding: 6px 5px;
-  text-align: left;
-  background-color: #e8eef4; 
-  border: solid 1px #e8eef4;   
+    padding: 6px 5px;
+    text-align: left;
+    background-color: #e8eef4;
+    border: solid 1px #e8eef4;
 }
 
 /* MISC  
@@ -247,45 +211,40 @@ table th
 
 .error
 {
-    color:Red;
+    color: Red;
 }
 
 #menucontainer
 {
-    margin-top:40px;
-}
-
-div#title
-{
-    display:block;
-    float:left;
-    text-align:left;
+    position: relative;
+    float: right;
+    top:-5px;
 }
 
 #logindisplay
 {
-    font-size:1.1em;
-    display:block;
-    text-align:right;
-    margin:10px;
-    color:White;
+    float: left;
+    font-size: 1.1em;
+    display: block;
+    margin: 10px;
+    color: #DDD;
 }
 
 #logindisplay a:link
 {
-    color: white;
-    text-decoration: underline;
+    color: #DDF;
+    text-decoration: none;
 }
 
 #logindisplay a:visited
 {
-    color: white;
-    text-decoration: underline;
+    color: #DEF;
+    text-decoration: none;
 }
 
 #logindisplay a:hover
 {
-    color: white;
+    color: #202020;
     text-decoration: none;
 }
 
@@ -320,10 +279,7 @@ div#title
 
 /* Styles for editor and display helpers
 ----------------------------------------------------------*/
-.display-label,
-.editor-label,
-.display-field,
-.editor-field
+.display-label, .editor-label, .display-field, .editor-field
 {
     margin: 0.5em 0;
 }
@@ -341,4 +297,23 @@ div#title
 .tri-state
 {
     width: 6em;
+}
+
+/******************************************************************/
+.content
+{
+    position: relative;
+    display: block;
+    width: 800px;
+    
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #FDFDFD;
+    box-shadow: 0 0 10px #888;
+    
 }

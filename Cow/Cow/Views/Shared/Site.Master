@@ -11,9 +11,6 @@
     <div class="page">
 
         <div id="header">
-            <div id="title">
-                <h1>My MVC Application</h1>
-            </div>
               
             <div id="logindisplay">
                 <% Html.RenderPartial("LogOnUserControl"); %>
@@ -23,7 +20,7 @@
             
                 <ul id="menu">              
                     <li><%: Html.ActionLink("Home", "Index", "Home")%></li>
-                    <li><%: Html.ActionLink("About", "About", "Home")%></li>
+                    <li><%: Html.ActionLink("White Boards", "List", "WhiteBoard")%></li>
                 </ul>
             
             </div>
@@ -31,9 +28,6 @@
 
         <div id="main">
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
-
-            <div id="footer">
-            </div>
         </div>
     </div>
 </body>
