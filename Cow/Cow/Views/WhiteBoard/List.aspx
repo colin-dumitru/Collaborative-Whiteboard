@@ -3,10 +3,11 @@
 <%@ Page Title="List White Boards" Language="C#" MasterPageFile="~/Views/Shared/Site.Master"
     Inherits="System.Web.Mvc.ViewPage<ListBoardModelView>" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="TitleContent" runat="server">
+<asp:Content ID="TitleContent" ContentPlaceHolderID="TitleContent" runat="server">
     List White Boards
 </asp:Content>
-<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
+
+<asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="content">
         <h2>
             Your White Boards
@@ -21,6 +22,7 @@
             <li>
                 <%:board.Name %>
                 <%:Html.ActionLink("Delete", "Delete", "WhiteBoard", new RouteValueDictionary() { {"id" , board.Id}}, null)%>
+                <%:Html.ActionLink(">>", "Open", "WhiteBoard", new RouteValueDictionary() { {"id" , board.Id}}, null)%>
             </li>
             <%   } %>
         </ul>

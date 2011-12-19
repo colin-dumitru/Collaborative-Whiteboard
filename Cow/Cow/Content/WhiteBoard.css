@@ -1,1 +1,51 @@
-﻿
+﻿    .boardcontainer 
+{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.boardcontainer table 
+{
+    position: relative;
+    width: 100%;
+    height:  100%;
+    border: none;
+}
+
+.toolcontainer
+{
+    background-color: #EEE;
+    width: 50px;
+    border: none;
+    border-radius: 0px 10px 10px 0px;
+    box-shadow: 0 0 10px #888;
+}
+
+.canvascontainer
+{
+    position: relative;    
+    border: none;
+}
+
+.canvas 
+{
+    position: relative;
+    display: block;
+    
+    width: 800px;
+    height: 600px;
+    margin-left: auto;
+    margin-right: auto;    
+    background-color: White;
+    box-shadow: 0 0 10px #888;
+}
+
+.layercontainer
+{
+    background-color: #EEE;
+    width: 150px;
+    border: none;
+    border-radius: 10px 0px 0px 10px;
+    box-shadow: 0 0 10px #888;
+}

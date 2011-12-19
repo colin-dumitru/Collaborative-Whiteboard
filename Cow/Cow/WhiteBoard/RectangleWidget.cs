@@ -10,10 +10,21 @@ namespace Cow.WhiteBoard {
         //------------------------------------------------------------------------------------------
 				
         public int Type {
-            get { throw new NotImplementedException(); }
+            get {
+                throw new NotImplementedException(); 
+            }
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
+
+        public int Id {
+            get {
+                throw new NotImplementedException();
+            }
+            set {
+                throw new NotImplementedException();
+            }
+        }
     }
 
 }

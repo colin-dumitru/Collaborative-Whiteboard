@@ -86,9 +86,12 @@
     <Compile Include="ModelViews\ListBoardModelView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhiteBoard\Board.cs" />
+    <Compile Include="WhiteBoard\BoardManager.cs" />
+    <Compile Include="WhiteBoard\Change.cs" />
     <Compile Include="WhiteBoard\Layer.cs" />
     <Compile Include="WhiteBoard\IWidget.cs" />
     <Compile Include="WhiteBoard\RectangleWidget.cs" />
+    <Compile Include="WhiteBoard\User.cs" />
     <Compile Include="WhiteBoard\WidgetFactory.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +103,7 @@
     <Content Include="Global.asax" />
     <Content Include="Models\Sql\BoardModel.edmx.sql" />
     <Content Include="Views\WhiteBoard\List.aspx" />
+    <Content Include="Views\WhiteBoard\Open.aspx" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
