@@ -102,6 +102,8 @@
     <Content Include="Content\WhiteBoard.css" />
     <Content Include="Global.asax" />
     <Content Include="Models\Sql\BoardModel.edmx.sql" />
+    <Content Include="Scripts\App.js" />
+    <Content Include="Scripts\Tool.js" />
     <Content Include="Scripts\WhiteBoard.js" />
     <Content Include="Views\WhiteBoard\List.aspx" />
     <Content Include="Views\WhiteBoard\Open.aspx" />
