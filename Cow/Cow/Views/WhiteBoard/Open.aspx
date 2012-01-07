@@ -2,7 +2,12 @@
 
 <asp:Content ID="HeaderContent" ContentPlaceHolderID="HeaderContent" runat="server">
     <link href="../../Content/WhiteBoard.css" rel="stylesheet" type="text/css" />
-
+        
+    <!-- A 7-ea librarie pe care o incerc -->
+    <link href="../../Content/color_select.css" rel="stylesheet" type="text/css" />
+    <script src="../../Scripts/color_select.js" type="text/javascript"></script>
+    
+    <script src="../../Scripts/Util.js" type="text/javascript"></script>
     <script type="text/javascript" src="../../Scripts/jquery-1.4.1.js"></script>
     <script type="text/javascript" src="../../Scripts/WhiteBoard.js"></script>
     <script type="text/javascript" src="../../Scripts/Tool.js"></script>

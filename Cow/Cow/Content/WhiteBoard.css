@@ -196,4 +196,26 @@
     min-width: 20px;
     background-color: #EEE;
     border-radius: 0px 10px 10px 0px;
+    z-index: 2;
+}
+
+.optionContainer > .colorBox
+{
+    float : left;
+    margin : 5px;
+    width : 40px;
+    height : 40px;
+    border-radius: 5px;
+    border: 1px solid #222;
+}
+
+.optionContainer > .combo
+{
+    margin-top: 5px;
+    margin-bottom: auto;
+    font-size: 22px;
+    background-color: #EEF;
+    border-radius: 5px;
+    border: 1px solid #222;
+    padding: 5px;
 }

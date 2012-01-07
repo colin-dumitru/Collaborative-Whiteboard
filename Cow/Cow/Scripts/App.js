@@ -33,8 +33,6 @@ App.prototype.Initialize = function () {
 
     /*afisam elementele din toolbox*/
     this._ResetToolBox();
-
-
 }
 
 
@@ -45,6 +43,7 @@ App.prototype._ResetToolBox = function () {
 
     /*afisam toolurile in containerul specificat*/
     this._toolBox.Pack();
+
 }
                 
                 
