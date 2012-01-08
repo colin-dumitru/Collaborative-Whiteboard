@@ -1,6 +1,7 @@
-﻿    .boardcontainer 
+﻿ .boardcontainer 
 {
     position: relative;
+    display: block;
     width: 100%;
     height: 100%;
 }
@@ -9,7 +10,12 @@
 {
     position: relative;
     width: 100%;
-    height:  100%;
+    height: 100%;
+    border: none;
+}
+
+.boardcontainer > table td 
+{
     border: none;
 }
 
@@ -17,15 +23,30 @@
 {
     background-color: #EEE;
     width: 50px;
-    border: none;
     border-radius: 0px 10px 10px 0px;
     box-shadow: 0 0 10px #888;
 }
 
+#toolContainer
+{
+    height: 100%;
+}
+
+#toolContainer > div
+{
+    border-radius: 5px;
+    height: 50px;
+    width: 50px;
+    margin-top: 5px;
+}
+#toolContainer > div:hover
+{
+    box-shadow: 0 0 10px #DDD;
+    background-color: #F5F5F5;
+}
 .canvascontainer
 {
-    position: relative;    
-    border: none;
+    overflow:auto;
 }
 
 .canvas 
@@ -34,7 +55,7 @@
     display: block;
     
     width: 800px;
-    height: 600px;
+    height: 300px;
     margin-left: auto;
     margin-right: auto;    
     background-color: White;
@@ -43,15 +64,22 @@
 
 .layercontainer
 {
-    position: relative;
-    background-color: #EEE;
-    display: block;
     width: 150px;
-    height: 100%;
-    float: right;
-    border: none;
+    background-color: #EEE;
     border-radius: 10px 0px 0px 10px;
     box-shadow: 0 0 10px #888;
+}
+
+.layercontainer > table
+{
+    height: 100%;
+}
+
+.userContainer
+{
+    width : 100px;
+    height : 60px;
+    background-color:#FFF;
 }
 
 .layers
@@ -59,8 +87,16 @@
     height: 200px;
 }
 
+.layers > ul 
+{
+    height: 150px;
+    overflow: auto;
+    margin: 0px;
+}
+
 .widgets
 {
+    height: 100%;
 }
 
 .layerbuttons
@@ -151,3 +187,35 @@
     width: 26px;
     background-image: url("/Images/down_layer_hover.png");
 }      
+
+.optionContainer 
+{
+    opacity: 0;
+    position: absolute;
+    height: 50px;
+    min-width: 20px;
+    background-color: #EEE;
+    border-radius: 0px 10px 10px 0px;
+    z-index: 2;
+}
+
+.optionContainer > .colorBox
+{
+    float : left;
+    margin : 5px;
+    width : 40px;
+    height : 40px;
+    border-radius: 5px;
+    border: 1px solid #222;
+}
+
+.optionContainer > .combo
+{
+    margin-top: 5px;
+    margin-bottom: auto;
+    font-size: 22px;
+    background-color: #EEF;
+    border-radius: 5px;
+    border: 1px solid #222;
+    padding: 5px;
+}
