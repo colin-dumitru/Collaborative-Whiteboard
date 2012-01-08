@@ -5,7 +5,7 @@
     height: 100%;
 }
 
-.boardcontainer table 
+.boardcontainer > table 
 {
     position: relative;
     width: 100%;
@@ -43,9 +43,111 @@
 
 .layercontainer
 {
+    position: relative;
     background-color: #EEE;
+    display: block;
     width: 150px;
+    height: 100%;
+    float: right;
     border: none;
     border-radius: 10px 0px 0px 10px;
     box-shadow: 0 0 10px #888;
 }
+
+.layers
+{
+    height: 200px;
+}
+
+.widgets
+{
+}
+
+.layerbuttons
+{
+    margin: 0px;
+    padding: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 0xp;
+    height: 22px;
+}
+
+.layerbuttons td
+{
+    border: none;
+    padding: 0px;
+    background-repeat:no-repeat;
+}
+
+#add_layer_button
+{
+    width: 24px;
+    background-image: url("/Images/add_layer.png");
+}
+
+#remove_layer_button
+{
+    width: 23px;
+    background-image: url("/Images/remove_layer.png");
+}
+
+#clone_layer_button
+{
+    width: 24px;
+    background-image: url("/Images/clone_layer.png");
+}
+
+#merge_layer_button
+{
+    width: 25px;
+    background-image: url("/Images/merge_layer.png");
+}
+
+#up_layer_button
+{
+    width: 22px;
+    background-image: url("/Images/up_layer.png");
+}
+
+#down_layer_button
+{
+    width: 26px;
+    background-image: url("/Images/down_layer.png");
+}           
+
+#add_layer_button:hover
+{
+    width: 24px;
+    background-image: url("/Images/add_layer_hover.png");
+}
+
+#remove_layer_button:hover
+{
+    width: 23px;
+    background-image: url("/Images/remove_layer_hover.png");
+}
+
+#clone_layer_button:hover
+{
+    width: 24px;
+    background-image: url("/Images/clone_layer_hover.png");
+}
+
+#merge_layer_button:hover
+{
+    width: 25px;
+    background-image: url("/Images/merge_layer_hover.png");
+}
+
+#up_layer_button:hover
+{
+    width: 22px;
+    background-image: url("/Images/up_layer_hover.png");
+}
+
+#down_layer_button:hover
+{
+    width: 26px;
+    background-image: url("/Images/down_layer_hover.png");
+}      
