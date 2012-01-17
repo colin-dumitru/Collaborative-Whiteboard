@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cow.Models;
 
 namespace Cow.WhiteBoard {
     public class BoardManager {
@@ -17,10 +18,13 @@ namespace Cow.WhiteBoard {
 
                 return _instance;
             }
-        }   
+        }
+
+        private CowEntities cw = new CowEntities();
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------ 
         public BoardManager() {
+            
 
         }
         //------------------------------------------------------------------------------------------

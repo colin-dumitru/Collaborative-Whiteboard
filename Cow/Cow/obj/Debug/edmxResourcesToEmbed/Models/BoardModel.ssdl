@@ -2,6 +2,7 @@
 <Schema Namespace="Models.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <EntityContainer Name="ModelsStoreContainer">
     <EntitySet Name="BoardEntities" EntityType="Models.Store.BoardEntities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="BoardDatas" EntityType="Models.Store.BoardDatas" store:Type="Tables" Schema="dbo" />
   </EntityContainer>
   <EntityType Name="BoardEntities">
     <Key>
@@ -10,5 +11,13 @@
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="BoardDatas">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="BoardId" Type="int" Nullable="false" />
   </EntityType>
 </Schema>

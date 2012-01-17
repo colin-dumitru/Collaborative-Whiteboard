@@ -7,6 +7,7 @@
     <Schema Namespace="Models.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <EntityContainer Name="ModelsStoreContainer">
     <EntitySet Name="BoardEntities" EntityType="Models.Store.BoardEntities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="BoardDatas" EntityType="Models.Store.BoardDatas" store:Type="Tables" Schema="dbo" />
   </EntityContainer>
   <EntityType Name="BoardEntities">
     <Key>
@@ -16,12 +17,21 @@
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
+  <EntityType Name="BoardDatas">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="BoardId" Type="int" Nullable="false" />
+  </EntityType>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Models" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="CowEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="BoardEntities" EntityType="Models.BoardEntity" />
+          <EntitySet Name="BoardDatas" EntityType="Models.BoardData" />
         </EntityContainer>
         <EntityType Name="BoardEntity">
           <Key>
@@ -30,6 +40,14 @@
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Owner" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" />
+        </EntityType>
+        <EntityType Name="BoardData">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Data" Nullable="false" />
+          <Property Type="Int32" Name="BoardId" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -43,6 +61,15 @@
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Owner" ColumnName="Owner" />
           <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="BoardDatas">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.BoardData)">
+        <MappingFragment StoreEntitySet="BoardDatas">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Data" ColumnName="Data" />
+          <ScalarProperty Name="BoardId" ColumnName="BoardId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -67,6 +94,7 @@
     <Diagrams>
       <Diagram Name="BoardModel">
         <EntityTypeShape EntityType="Models.BoardEntity" Width="1.5" PointX="3.25" PointY="1.125" Height="1.59568359375" />
+        <EntityTypeShape EntityType="Models.BoardData" Width="1.5" PointX="5.625" PointY="1.25" Height="1.59568359375" />
       </Diagram>
     </Diagrams>
   </Designer>

@@ -80,6 +80,22 @@ namespace Cow.Models
             }
         }
         private ObjectSet<BoardEntity> _BoardEntities;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<BoardData> BoardDatas
+        {
+            get
+            {
+                if ((_BoardDatas == null))
+                {
+                    _BoardDatas = base.CreateObjectSet<BoardData>("BoardDatas");
+                }
+                return _BoardDatas;
+            }
+        }
+        private ObjectSet<BoardData> _BoardDatas;
 
         #endregion
         #region AddTo Methods
@@ -91,6 +107,14 @@ namespace Cow.Models
         {
             base.AddObject("BoardEntities", boardEntity);
         }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the BoardDatas EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToBoardDatas(BoardData boardData)
+        {
+            base.AddObject("BoardDatas", boardData);
+        }
 
         #endregion
     }
@@ -99,6 +123,113 @@ namespace Cow.Models
     #endregion
     
     #region Entities
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="Models", Name="BoardData")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class BoardData : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new BoardData object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        /// <param name="data">Initial value of the Data property.</param>
+        /// <param name="boardId">Initial value of the BoardId property.</param>
+        public static BoardData CreateBoardData(global::System.Int32 id, global::System.String data, global::System.Int32 boardId)
+        {
+            BoardData boardData = new BoardData();
+            boardData.Id = id;
+            boardData.Data = data;
+            boardData.BoardId = boardId;
+            return boardData;
+        }
+
+        #endregion
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String Data
+        {
+            get
+            {
+                return _Data;
+            }
+            set
+            {
+                OnDataChanging(value);
+                ReportPropertyChanging("Data");
+                _Data = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("Data");
+                OnDataChanged();
+            }
+        }
+        private global::System.String _Data;
+        partial void OnDataChanging(global::System.String value);
+        partial void OnDataChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 BoardId
+        {
+            get
+            {
+                return _BoardId;
+            }
+            set
+            {
+                OnBoardIdChanging(value);
+                ReportPropertyChanging("BoardId");
+                _BoardId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BoardId");
+                OnBoardIdChanged();
+            }
+        }
+        private global::System.Int32 _BoardId;
+        partial void OnBoardIdChanging(global::System.Int32 value);
+        partial void OnBoardIdChanged();
+
+        #endregion
+    
+    }
     
     /// <summary>
     /// No Metadata Documentation available.

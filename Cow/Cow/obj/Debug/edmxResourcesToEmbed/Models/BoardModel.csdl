@@ -2,6 +2,7 @@
 <Schema Namespace="Models" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
   <EntityContainer Name="CowEntities" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="BoardEntities" EntityType="Models.BoardEntity" />
+    <EntitySet Name="BoardDatas" EntityType="Models.BoardData" />
   </EntityContainer>
   <EntityType Name="BoardEntity">
     <Key>
@@ -10,5 +11,13 @@
     <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Type="String" Name="Owner" Nullable="false" />
     <Property Type="String" Name="Name" Nullable="false" />
+  </EntityType>
+  <EntityType Name="BoardData">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="Data" Nullable="false" />
+    <Property Type="Int32" Name="BoardId" Nullable="false" />
   </EntityType>
 </Schema>

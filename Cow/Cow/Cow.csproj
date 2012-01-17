@@ -73,15 +73,15 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\WhiteBoardController.cs" />
     <Compile Include="Data\BoardEntityManager.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\BoardModel.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>BoardModel.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
-    <Compile Include="Models\AccountModels.cs" />
     <Compile Include="ModelViews\CreateBoardModelView.cs" />
     <Compile Include="ModelViews\ListBoardModelView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -103,6 +103,7 @@
     <Content Include="Content\color_select.css" />
     <Content Include="Content\WhiteBoard.css" />
     <Content Include="Global.asax" />
+    <Content Include="Models\BoardModel.edmx.sql" />
     <Content Include="Models\Sql\BoardModel.edmx.sql" />
     <Content Include="Scripts\App.js" />
     <Content Include="Scripts\color_select.js" />
