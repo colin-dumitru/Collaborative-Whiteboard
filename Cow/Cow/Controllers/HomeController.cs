@@ -13,8 +13,6 @@ namespace Cow.Controllers {
 			
 	    [Authorize]
         public ActionResult Index() {  
-          
-
             return View();
 
         }

@@ -186,11 +186,6 @@ var ToolBox = function (toolContainer, optionsContainer) {
     /*elementul radacaina pentru optiuni*/
     this._optionsContainer = optionsContainer;
 
-    /*lista de unelte*/
-    this._tools = [];
-    /*unealta curenta*/
-    this._currentTool = null;
-
     /*evenimente*/
     var that = this;
 
@@ -219,8 +214,16 @@ var ToolBox = function (toolContainer, optionsContainer) {
 
 }
 
+/*lista de unelte*/
+ToolBox.prototype._tools = [];
+ToolBox.prototype._toolsTable = {};
+
+/*unealta curenta*/
+ToolBox.prototype._currentTool = null;
+
 ToolBox.prototype.AddTool = function (tool) {
     this._tools.push(tool);
+    this._toolsTable[tool.Id] = tool;
     this._BuildToolOptions(tool);
 }
 
@@ -275,8 +278,19 @@ ToolBox.prototype._CreateToolElement = function (tool) {
     return res;
 }
 
+ToolBox.prototype.ChangeToolSelection = function (name) {
+    try {
+        this._ChangeToolSelection(this._toolsTable[name]);
+    } catch (e) {
+        console.log(e.toString());
+    }
+}
+
 
 ToolBox.prototype._ChangeToolSelection = function (tool) {
+    if (tool == null)
+        throw "Tool cannot be null";
+
     /*resetam starea eleentului selectat anterios*/
     if (this._currentTool != null) {
         this._currentTool.Element.style.backgroundColor = "";
@@ -340,20 +354,38 @@ ToolBox.prototype._HideOptionBox = function () {
 */
 
 
-var Tool = function () {
-    /*iconita 50x50 ce va fi afisata in toolbox*/
-    this.Icon = null;
-    /*elementul dom asociat*/
-    this.Element = null;
-
-    /*lista de optiuni*/
-    this.Options = [];
+var Tool = function (toolbox, whiteBoard) {
+    this.ToolBox = toolbox;
+    this.WhiteBoard = whiteBoard;
 }
+
+/*id-ul unic*/
+Tool.prototype.Id = "no id";
+/*iconita 50x50 ce va fi afisata in toolbox*/
+Tool.prototype.Icon = null;
+/*elementul dom asociat*/
+Tool.prototype.Element = null;
+
+/*lista de optiuni*/
+Tool.prototype.Options = [];
+
+/*toolox-ul parinte*/
+Tool.prototype.ToolBox = null;
+/*white-board-ul afectat*/
+Tool.prototype.WhiteBoard = null;
 
 
 Tool.prototype.OptionChanged = function (option, value) {
     throw "Not implemented";
+
 }
+
+Tool.prototype.Click = function (x, y) {
+    throw "Not implemented";
+}
+
+Tool.prototype.Drag = function (fromX, fromY, toX, toY) {
+} 
 
 /*
 ---------------------------------------------------------------------------
@@ -361,10 +393,17 @@ Tool.prototype.OptionChanged = function (option, value) {
 ---------------------------------------------------------------------------
 */
 
-RectangleTool.prototype = Object.create(Tool.pro);
+RectangleTool.prototype = Object.create(Tool.prototype);
 RectangleTool.prototype.constructor = RectangleTool;
 
-function RectangleTool() {
+RectangleTool.prototype.DefaultWidth = 100;
+RectangleTool.prototype.DefaultHeight = 50;
+
+function RectangleTool(toolbox, whiteBoard) {
+    Tool.call(this, toolbox, whiteBoard);    
+
+    this.Id = "rectangle";
+
     this._bgColor = "#FFF";
     this._fgColor = "#000";
     this._value = "Rectangle";
@@ -382,14 +421,44 @@ function RectangleTool() {
 
 RectangleTool.prototype.OptionChanged = function (option, value) {
     if (option == "fgColor") {
-        this._fgcolor = value.color;
+        this._fgColor = value.color;
     } else if (option == "bgColor") {
         this._bgColor = value.color;
     } else if (option == "type") {
-        this._type = value.value;
+        this._type = value.value; 
     }
-
 }
+
+RectangleTool.prototype.Click = function (x, y) {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    var widget = Create(new PolygonWidget(), {
+        Polygon: Create(new Polygon(), {
+            _points: [
+                Create(new Point(), { X: - (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) }),
+                Create(new Point(), { X:   (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) }),
+                Create(new Point(), { X:   (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) }),
+                Create(new Point(), { X: - (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) })
+            ],
+            PivotX: 0,
+            PivotY: 0,
+            Position: Create(new Point(), {X : x, Y : y}),
+        }),
+        BgColor: this._bgColor,
+        FgColor: this._fgColor
+    });
+
+    widget.UpdateBounds();
+
+    /*adaugam widget-ul in layer-ul activ*/
+    this.WhiteBoard.ActiveLayer.PushWidget(widget);
+
+    /*schimbam selectia*/
+    this.WhiteBoard.SetActiveWidget(widget);
+    /*schimbam la toolul de selectie*/
+    this.ToolBox.ChangeToolSelection("select");
+} 
 
 
 /*
@@ -398,10 +467,11 @@ RectangleTool.prototype.OptionChanged = function (option, value) {
 ---------------------------------------------------------------------------
 */
 
-TextTool.prototype = Object.create(Tool.prototype);
-TextTool.prototype.constructor = TextTool;
+var TextTool = function (toolbox, whiteBoard) {
+    Tool.call(this, toolbox, whiteBoard);
 
-function TextTool() {
+    this.Id = "text";
+
     /*setam imaginea ce va fi afisata in toolbox*/
     (this.Icon = new Image()).src = "/Images/icon_text.png";
     /*optiunile*/
@@ -409,5 +479,53 @@ function TextTool() {
         { id: "color", type: "Color", params: { color: "#FFF"} }
     ];
 }
-         
+
+TextTool.prototype = Object.create(Tool.prototype);
+TextTool.prototype.constructor = TextTool;
+
+TextTool.prototype.Click = function (x, y) {
+} 
+
+/*
+---------------------------------------------------------------------------
+---------------------------Select Tool-------------------------------------
+---------------------------------------------------------------------------
+*/
+
+var SelectTool = function (toolbox, whiteBoard) {
+    Tool.call(this, toolbox, whiteBoard);
+
+    this.Id = "select";
+
+    /*setam imaginea ce va fi afisata in toolbox*/
+    (this.Icon = new Image()).src = "/Images/icon_select.png";
+    /*optiunile*/
+    this.Options = [        
+    ];
+}
+
+SelectTool.prototype = Object.create(Tool.prototype);
+SelectTool.prototype.constructor = SelectTool;
+
+SelectTool.prototype.Drag = function (fromX, fromY, toX, toY) {
+    this.WhiteBoard.TransformWidget.Drag(fromX, fromY, toX, toY);
+}
+
+SelectTool.prototype.Click = function (x, y) {
+    var that = this;
+
+    this.WhiteBoard.TransformWidget.Click(x, y);
+
+    /*cautam widgetul ce se intersecteaza cu punctul*/
+    if(this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    this.WhiteBoard.ActiveLayer.EachWidget(function(widget) {
+        if(widget.Includes ({X : x, Y : y})) {
+            /*schimbam selectia*/
+            that.WhiteBoard.SetActiveWidget(widget);
+        }
+    });
+
+} 
                 
