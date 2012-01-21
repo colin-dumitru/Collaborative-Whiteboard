@@ -1,14 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Schema Namespace="Models.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <EntityContainer Name="ModelsStoreContainer">
-    <EntitySet Name="BoardEntities" EntityType="Models.Store.BoardEntities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Boards" EntityType="Models.Store.Boards" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Layers" EntityType="Models.Store.Layers" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Widgets" EntityType="Models.Store.Widgets" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserRights" EntityType="Models.Store.UserRights" store:Type="Tables" Schema="dbo" />
   </EntityContainer>
-  <EntityType Name="BoardEntities">
+  <EntityType Name="Boards">
     <Key>
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Layers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BoardId" Type="int" Nullable="false" />
+    <Property Name="LayerId" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Widgets">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="LayerId" Type="int" Nullable="false" />
+    <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="WidgetId" Type="int" Nullable="false" />
+    <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="UserRights">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BoardId" Type="int" Nullable="false" />
+    <Property Name="User" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Right" Type="int" Nullable="false" />
   </EntityType>
 </Schema>

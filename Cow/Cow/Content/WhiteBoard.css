@@ -55,7 +55,7 @@
     display: block;
     
     width: 800px;
-    height: 300px;
+    height: 600px;
     margin-left: auto;
     margin-right: auto;    
     background-color: White;
@@ -68,11 +68,17 @@
     background-color: #EEE;
     border-radius: 10px 0px 0px 10px;
     box-shadow: 0 0 10px #888;
+    padding: 0;
 }
 
 .layercontainer > table
 {
     height: 100%;
+}
+
+#layerContainer
+{
+    padding: 0;
 }
 
 .userContainer
@@ -97,6 +103,26 @@
 .widgets
 {
     height: 100%;
+}
+
+.layer
+{
+    background-color: #DDD;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.layer_selected
+{
+    background-color: #DAA;
+    border-radius: 5px;
+    text-decoration: none;    
+}
+
+.layer,
+.layer_selected
+{
+    list-style: none;
 }
 
 .layerbuttons

@@ -68,28 +68,100 @@ namespace Cow.Models
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        public ObjectSet<BoardEntity> BoardEntities
+        public ObjectSet<Board> Boards
         {
             get
             {
-                if ((_BoardEntities == null))
+                if ((_Boards == null))
                 {
-                    _BoardEntities = base.CreateObjectSet<BoardEntity>("BoardEntities");
+                    _Boards = base.CreateObjectSet<Board>("Boards");
                 }
-                return _BoardEntities;
+                return _Boards;
             }
         }
-        private ObjectSet<BoardEntity> _BoardEntities;
+        private ObjectSet<Board> _Boards;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<Layer> Layers
+        {
+            get
+            {
+                if ((_Layers == null))
+                {
+                    _Layers = base.CreateObjectSet<Layer>("Layers");
+                }
+                return _Layers;
+            }
+        }
+        private ObjectSet<Layer> _Layers;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<Widget> Widgets
+        {
+            get
+            {
+                if ((_Widgets == null))
+                {
+                    _Widgets = base.CreateObjectSet<Widget>("Widgets");
+                }
+                return _Widgets;
+            }
+        }
+        private ObjectSet<Widget> _Widgets;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<UserRight> UserRights
+        {
+            get
+            {
+                if ((_UserRights == null))
+                {
+                    _UserRights = base.CreateObjectSet<UserRight>("UserRights");
+                }
+                return _UserRights;
+            }
+        }
+        private ObjectSet<UserRight> _UserRights;
 
         #endregion
         #region AddTo Methods
     
         /// <summary>
-        /// Deprecated Method for adding a new object to the BoardEntities EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// Deprecated Method for adding a new object to the Boards EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
         /// </summary>
-        public void AddToBoardEntities(BoardEntity boardEntity)
+        public void AddToBoards(Board board)
         {
-            base.AddObject("BoardEntities", boardEntity);
+            base.AddObject("Boards", board);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the Layers EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToLayers(Layer layer)
+        {
+            base.AddObject("Layers", layer);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the Widgets EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToWidgets(Widget widget)
+        {
+            base.AddObject("Widgets", widget);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the UserRights EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToUserRights(UserRight userRight)
+        {
+            base.AddObject("UserRights", userRight);
         }
 
         #endregion
@@ -103,26 +175,26 @@ namespace Cow.Models
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="Models", Name="BoardEntity")]
+    [EdmEntityTypeAttribute(NamespaceName="Models", Name="Board")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
-    public partial class BoardEntity : EntityObject
+    public partial class Board : EntityObject
     {
         #region Factory Method
     
         /// <summary>
-        /// Create a new BoardEntity object.
+        /// Create a new Board object.
         /// </summary>
         /// <param name="id">Initial value of the Id property.</param>
         /// <param name="owner">Initial value of the Owner property.</param>
         /// <param name="name">Initial value of the Name property.</param>
-        public static BoardEntity CreateBoardEntity(global::System.Int32 id, global::System.String owner, global::System.String name)
+        public static Board CreateBoard(global::System.Int32 id, global::System.String owner, global::System.String name)
         {
-            BoardEntity boardEntity = new BoardEntity();
-            boardEntity.Id = id;
-            boardEntity.Owner = owner;
-            boardEntity.Name = name;
-            return boardEntity;
+            Board board = new Board();
+            board.Id = id;
+            board.Owner = owner;
+            board.Name = name;
+            return board;
         }
 
         #endregion
@@ -202,6 +274,405 @@ namespace Cow.Models
         private global::System.String _Name;
         partial void OnNameChanging(global::System.String value);
         partial void OnNameChanged();
+
+        #endregion
+    
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="Models", Name="Layer")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class Layer : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new Layer object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        /// <param name="boardId">Initial value of the BoardId property.</param>
+        /// <param name="layerId">Initial value of the LayerId property.</param>
+        public static Layer CreateLayer(global::System.Int32 id, global::System.Int32 boardId, global::System.String layerId)
+        {
+            Layer layer = new Layer();
+            layer.Id = id;
+            layer.BoardId = boardId;
+            layer.LayerId = layerId;
+            return layer;
+        }
+
+        #endregion
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 BoardId
+        {
+            get
+            {
+                return _BoardId;
+            }
+            set
+            {
+                OnBoardIdChanging(value);
+                ReportPropertyChanging("BoardId");
+                _BoardId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BoardId");
+                OnBoardIdChanged();
+            }
+        }
+        private global::System.Int32 _BoardId;
+        partial void OnBoardIdChanging(global::System.Int32 value);
+        partial void OnBoardIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String LayerId
+        {
+            get
+            {
+                return _LayerId;
+            }
+            set
+            {
+                OnLayerIdChanging(value);
+                ReportPropertyChanging("LayerId");
+                _LayerId = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("LayerId");
+                OnLayerIdChanged();
+            }
+        }
+        private global::System.String _LayerId;
+        partial void OnLayerIdChanging(global::System.String value);
+        partial void OnLayerIdChanged();
+
+        #endregion
+    
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="Models", Name="UserRight")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class UserRight : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new UserRight object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        /// <param name="boardId">Initial value of the BoardId property.</param>
+        /// <param name="user">Initial value of the User property.</param>
+        /// <param name="right">Initial value of the Right property.</param>
+        public static UserRight CreateUserRight(global::System.Int32 id, global::System.Int32 boardId, global::System.String user, global::System.Int32 right)
+        {
+            UserRight userRight = new UserRight();
+            userRight.Id = id;
+            userRight.BoardId = boardId;
+            userRight.User = user;
+            userRight.Right = right;
+            return userRight;
+        }
+
+        #endregion
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 BoardId
+        {
+            get
+            {
+                return _BoardId;
+            }
+            set
+            {
+                OnBoardIdChanging(value);
+                ReportPropertyChanging("BoardId");
+                _BoardId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BoardId");
+                OnBoardIdChanged();
+            }
+        }
+        private global::System.Int32 _BoardId;
+        partial void OnBoardIdChanging(global::System.Int32 value);
+        partial void OnBoardIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String User
+        {
+            get
+            {
+                return _User;
+            }
+            set
+            {
+                OnUserChanging(value);
+                ReportPropertyChanging("User");
+                _User = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("User");
+                OnUserChanged();
+            }
+        }
+        private global::System.String _User;
+        partial void OnUserChanging(global::System.String value);
+        partial void OnUserChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Right
+        {
+            get
+            {
+                return _Right;
+            }
+            set
+            {
+                OnRightChanging(value);
+                ReportPropertyChanging("Right");
+                _Right = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Right");
+                OnRightChanged();
+            }
+        }
+        private global::System.Int32 _Right;
+        partial void OnRightChanging(global::System.Int32 value);
+        partial void OnRightChanged();
+
+        #endregion
+    
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="Models", Name="Widget")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class Widget : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new Widget object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        /// <param name="layerId">Initial value of the LayerId property.</param>
+        /// <param name="data">Initial value of the Data property.</param>
+        /// <param name="widgetId">Initial value of the WidgetId property.</param>
+        /// <param name="type">Initial value of the Type property.</param>
+        public static Widget CreateWidget(global::System.Int32 id, global::System.Int32 layerId, global::System.String data, global::System.Int32 widgetId, global::System.String type)
+        {
+            Widget widget = new Widget();
+            widget.Id = id;
+            widget.LayerId = layerId;
+            widget.Data = data;
+            widget.WidgetId = widgetId;
+            widget.Type = type;
+            return widget;
+        }
+
+        #endregion
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 LayerId
+        {
+            get
+            {
+                return _LayerId;
+            }
+            set
+            {
+                OnLayerIdChanging(value);
+                ReportPropertyChanging("LayerId");
+                _LayerId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("LayerId");
+                OnLayerIdChanged();
+            }
+        }
+        private global::System.Int32 _LayerId;
+        partial void OnLayerIdChanging(global::System.Int32 value);
+        partial void OnLayerIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String Data
+        {
+            get
+            {
+                return _Data;
+            }
+            set
+            {
+                OnDataChanging(value);
+                ReportPropertyChanging("Data");
+                _Data = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("Data");
+                OnDataChanged();
+            }
+        }
+        private global::System.String _Data;
+        partial void OnDataChanging(global::System.String value);
+        partial void OnDataChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 WidgetId
+        {
+            get
+            {
+                return _WidgetId;
+            }
+            set
+            {
+                OnWidgetIdChanging(value);
+                ReportPropertyChanging("WidgetId");
+                _WidgetId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("WidgetId");
+                OnWidgetIdChanged();
+            }
+        }
+        private global::System.Int32 _WidgetId;
+        partial void OnWidgetIdChanging(global::System.Int32 value);
+        partial void OnWidgetIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String Type
+        {
+            get
+            {
+                return _Type;
+            }
+            set
+            {
+                OnTypeChanging(value);
+                ReportPropertyChanging("Type");
+                _Type = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("Type");
+                OnTypeChanged();
+            }
+        }
+        private global::System.String _Type;
+        partial void OnTypeChanging(global::System.String value);
+        partial void OnTypeChanged();
 
         #endregion
     

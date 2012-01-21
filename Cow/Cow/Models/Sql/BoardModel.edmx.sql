@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, and Azure
 -- --------------------------------------------------
--- Date Created: 12/18/2011 22:40:29
+-- Date Created: 01/21/2012 20:49:11
 -- Generated from EDMX file: E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\Models\BoardModel.edmx
 -- --------------------------------------------------
 
@@ -22,16 +22,55 @@ GO
 -- Dropping existing tables
 -- --------------------------------------------------
 
+IF OBJECT_ID(N'[dbo].[Boards]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Boards];
+GO
+IF OBJECT_ID(N'[dbo].[Layers]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Layers];
+GO
+IF OBJECT_ID(N'[dbo].[Widgets]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Widgets];
+GO
+IF OBJECT_ID(N'[dbo].[UserRights]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[UserRights];
+GO
 
 -- --------------------------------------------------
 -- Creating all tables
 -- --------------------------------------------------
 
--- Creating table 'BoardEntities'
-CREATE TABLE [dbo].[BoardEntities] (
+-- Creating table 'Boards'
+CREATE TABLE [dbo].[Boards] (
     [Id] int IDENTITY(1,1) NOT NULL,
     [Owner] nvarchar(max)  NOT NULL,
     [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Layers'
+CREATE TABLE [dbo].[Layers] (
+    [Id] int IDENTITY(1,1) NOT NULL,
+    [BoardId] int  NOT NULL,
+    [LayerId] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Widgets'
+CREATE TABLE [dbo].[Widgets] (
+    [Id] int IDENTITY(1,1) NOT NULL,
+    [LayerId] int  NOT NULL,
+    [Data] nvarchar(max)  NOT NULL,
+    [WidgetId] int  NOT NULL,
+    [Type] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'UserRights'
+CREATE TABLE [dbo].[UserRights] (
+    [Id] int IDENTITY(1,1) NOT NULL,
+    [BoardId] int  NOT NULL,
+    [User] nvarchar(max)  NOT NULL,
+    [Right] int  NOT NULL
 );
 GO
 
@@ -39,9 +78,27 @@ GO
 -- Creating all PRIMARY KEY constraints
 -- --------------------------------------------------
 
--- Creating primary key on [Id] in table 'BoardEntities'
-ALTER TABLE [dbo].[BoardEntities]
-ADD CONSTRAINT [PK_BoardEntities]
+-- Creating primary key on [Id] in table 'Boards'
+ALTER TABLE [dbo].[Boards]
+ADD CONSTRAINT [PK_Boards]
+    PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+-- Creating primary key on [Id] in table 'Layers'
+ALTER TABLE [dbo].[Layers]
+ADD CONSTRAINT [PK_Layers]
+    PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+-- Creating primary key on [Id] in table 'Widgets'
+ALTER TABLE [dbo].[Widgets]
+ADD CONSTRAINT [PK_Widgets]
+    PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+-- Creating primary key on [Id] in table 'UserRights'
+ALTER TABLE [dbo].[UserRights]
+ADD CONSTRAINT [PK_UserRights]
     PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 
