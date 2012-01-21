@@ -102,6 +102,7 @@
     <Content Include="Content\WhiteBoard.css" />
     <Content Include="Global.asax" />
     <Content Include="Models\Sql\BoardModel.edmx.sql" />
+    <Content Include="Scripts\WhiteBoard.js" />
     <Content Include="Views\WhiteBoard\List.aspx" />
     <Content Include="Views\WhiteBoard\Open.aspx" />
     <Content Include="Web.config" />
@@ -134,7 +135,9 @@
     <Content Include="Views\Shared\Site.Master" />
     <Content Include="Views\Web.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Images\" />
+  </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="Models\BoardModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>

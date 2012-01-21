@@ -3,3 +3,8 @@ E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\bin\Cow.dll
 E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\bin\Cow.pdb
 E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\obj\Debug\Cow.dll
 E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\obj\Debug\Cow.pdb
+C:\Users\bkt\Desktop\CoW\Cow\Cow\bin\Cow.dll
+C:\Users\bkt\Desktop\CoW\Cow\Cow\bin\Cow.pdb
+C:\Users\bkt\Desktop\CoW\Cow\Cow\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\bkt\Desktop\CoW\Cow\Cow\obj\Debug\Cow.dll
+C:\Users\bkt\Desktop\CoW\Cow\Cow\obj\Debug\Cow.pdb
