@@ -6,20 +6,19 @@ using System.Web;
 namespace Cow.WhiteBoard {
     [Serializable]
     public class Change {
-        public enum Type {
-            Add, Change, Removed, Moved
-        }
+        public const String obj_widget = "widget";
+        public const String obj_layer = "layer";
 
-        public enum Object{
-            Widget, Layer
-        }
+        public const String op_add = "add";
+        public const String op_change = "change";
+        public const String op_remove = "remove";
 
         /*id-ul widgetului carei ii se aplica operatia*/
         public int Id { get; set; }
         /*lipul de obiect afectat*/
-        public Object Obj { get; set; } 
+        public String Obj { get; set; } 
         /*modificarea produsa*/
-        public Change Operation { get; set; }
+        public String Operation { get; set; }
         /*prorpeitatile modificate - serializat ca obiect Json*/
         public String ChangeString { get; set; }
 

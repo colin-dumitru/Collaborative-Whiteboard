@@ -295,12 +295,16 @@ namespace Cow.Models
         /// <param name="id">Initial value of the Id property.</param>
         /// <param name="boardId">Initial value of the BoardId property.</param>
         /// <param name="layerId">Initial value of the LayerId property.</param>
-        public static Layer CreateLayer(global::System.Int32 id, global::System.Int32 boardId, global::System.String layerId)
+        /// <param name="order">Initial value of the Order property.</param>
+        /// <param name="name">Initial value of the Name property.</param>
+        public static Layer CreateLayer(global::System.Int32 id, global::System.Int32 boardId, global::System.Int32 layerId, global::System.Int32 order, global::System.String name)
         {
             Layer layer = new Layer();
             layer.Id = id;
             layer.BoardId = boardId;
             layer.LayerId = layerId;
+            layer.Order = order;
+            layer.Name = name;
             return layer;
         }
 
@@ -363,7 +367,7 @@ namespace Cow.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String LayerId
+        public global::System.Int32 LayerId
         {
             get
             {
@@ -373,14 +377,62 @@ namespace Cow.Models
             {
                 OnLayerIdChanging(value);
                 ReportPropertyChanging("LayerId");
-                _LayerId = StructuralObject.SetValidValue(value, false);
+                _LayerId = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("LayerId");
                 OnLayerIdChanged();
             }
         }
-        private global::System.String _LayerId;
-        partial void OnLayerIdChanging(global::System.String value);
+        private global::System.Int32 _LayerId;
+        partial void OnLayerIdChanging(global::System.Int32 value);
         partial void OnLayerIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Order
+        {
+            get
+            {
+                return _Order;
+            }
+            set
+            {
+                OnOrderChanging(value);
+                ReportPropertyChanging("Order");
+                _Order = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Order");
+                OnOrderChanged();
+            }
+        }
+        private global::System.Int32 _Order;
+        partial void OnOrderChanging(global::System.Int32 value);
+        partial void OnOrderChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                OnNameChanging(value);
+                ReportPropertyChanging("Name");
+                _Name = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("Name");
+                OnNameChanged();
+            }
+        }
+        private global::System.String _Name;
+        partial void OnNameChanging(global::System.String value);
+        partial void OnNameChanged();
 
         #endregion
     
@@ -537,7 +589,9 @@ namespace Cow.Models
         /// <param name="data">Initial value of the Data property.</param>
         /// <param name="widgetId">Initial value of the WidgetId property.</param>
         /// <param name="type">Initial value of the Type property.</param>
-        public static Widget CreateWidget(global::System.Int32 id, global::System.Int32 layerId, global::System.String data, global::System.Int32 widgetId, global::System.String type)
+        /// <param name="order">Initial value of the Order property.</param>
+        /// <param name="name">Initial value of the Name property.</param>
+        public static Widget CreateWidget(global::System.Int32 id, global::System.Int32 layerId, global::System.String data, global::System.Int32 widgetId, global::System.String type, global::System.Int32 order, global::System.String name)
         {
             Widget widget = new Widget();
             widget.Id = id;
@@ -545,6 +599,8 @@ namespace Cow.Models
             widget.Data = data;
             widget.WidgetId = widgetId;
             widget.Type = type;
+            widget.Order = order;
+            widget.Name = name;
             return widget;
         }
 
@@ -673,6 +729,54 @@ namespace Cow.Models
         private global::System.String _Type;
         partial void OnTypeChanging(global::System.String value);
         partial void OnTypeChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Order
+        {
+            get
+            {
+                return _Order;
+            }
+            set
+            {
+                OnOrderChanging(value);
+                ReportPropertyChanging("Order");
+                _Order = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Order");
+                OnOrderChanged();
+            }
+        }
+        private global::System.Int32 _Order;
+        partial void OnOrderChanging(global::System.Int32 value);
+        partial void OnOrderChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                OnNameChanging(value);
+                ReportPropertyChanging("Name");
+                _Name = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("Name");
+                OnNameChanged();
+            }
+        }
+        private global::System.String _Name;
+        partial void OnNameChanging(global::System.String value);
+        partial void OnNameChanged();
 
         #endregion
     
