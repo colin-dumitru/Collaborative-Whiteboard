@@ -4,12 +4,12 @@
 --------------------------------Widgets------------------------------------
 ---------------------------------------------------------------------------
 */
-var Widget = function (options) {   
-
+var Widget = function (options) {
+    this.EInvalidate = jQuery.Event("invalidate");
 }
 Widget.prototype.Id = 0;
 Widget.prototype.Name = "Untitled";
-Widget.prototype.OnInvalidate = null;
+Widget.prototype.EInvalidate = null;
 
 Widget.prototype.Draw = function (context) {
     throw "Not implemented yet";
@@ -21,11 +21,10 @@ Widget.prototype.GetBounds = function () {
 
 Widget.prototype.Includes = function (point) {
     throw "Not implemeneted yet";
-} 
+}
 
 Widget.prototype.Invalidate = function () {
-    if (this.OnInvalidate != null)
-        this.OnInvalidate(this);
+    $(this).trigger(this.EInvalidate);
 }
 
 Widget.prototype.UpdateBounds = function () {
@@ -138,6 +137,11 @@ function Layer() {
     this._widgets = new Array();
     this._widgetTable = {};
     this.Name = "untitled";
+
+    /*declaram evenimentele*/
+    this.EWidgetAdd = jQuery.Event("widgetAdd");
+    this.EWidgetRemove = jQuery.Event("widgetRemove");
+    this.EInvalidate = jQuery.Event("invalidate");
 }
 
 Layer.prototype._widgets = null;
@@ -145,9 +149,9 @@ Layer.prototype._widgetTable = null;
 Layer.prototype.Name = null; ;
 Layer.prototype.Element = null;
 
-Layer.prototype.OnWidgetAdd = null;
-Layer.prototype.OnWidgetRemove = null;
-Layer.prototype.OnInvalidate = null;
+Layer.prototype.EWidgetAdd = null;
+Layer.prototype.EWidgetRemove = null;
+Layer.prototype.EInvalidate = null;
 
 
 Layer.prototype.PushWidget = function (widget) {
@@ -156,22 +160,26 @@ Layer.prototype.PushWidget = function (widget) {
     this._widgets.push(widget);
     this._widgetTable[widget.Id] = widget;
 
-    widget.OnInvalidate = function (widget) { that.InvalidateWidget(widget); }
+    $(widget).bind("invalidate", function (e) { that.InvalidateWidget(e.target); });
 
-    if (this.OnWidgetAdd != null)
-        this.OnWidgetAdd(widget);
-    if (this.OnInvalidate != null)
-        this.OnInvalidate(this);
+    /*setam informatiile evenimentelor*/
+    this.EWidgetAdd.widget = widget;
+
+    $(this).trigger(this.EWidgetAdd);
+    $(this).trigger(this.EInvalidate);
 }
 
 Layer.prototype.InvalidateWidget = function (widget) {
-    if (this.OnInvalidate != null)
-        this.OnInvalidate(this);
-} 
+    this.EInvalidate.widget = widget;
+    $(this).trigger(this.EInvalidate);
+}
 
 Layer.prototype.RemoveWidget = function (widgetId) {
     try {
         var widget = this._widgetTable[widgetId];
+
+        if (widget == null)
+            throw "widget not found + " + widgetId;
 
         delete this._widgetTable[widgetId];
         for (var i = 0; i < this._widgets.length; i++) {
@@ -181,10 +189,11 @@ Layer.prototype.RemoveWidget = function (widgetId) {
             }
         }
 
-        if (this.OnWidgetRemove != null)
-            this.OnWidgetRemove(widget);
-        if (this.OnInvalidate != null)
-            this.OnInvalidate(this);
+        /*setam informatiile evenimentelor*/
+        this.EWidgetRemove.widget = widget;
+
+        $(this).trigger(this.EWidgetRemove);
+        $(this).trigger(this.EInvalidate);
     } catch (e) {
         console.log(e.toString());
     }
@@ -262,82 +271,125 @@ var TransformWidget = function () {
 TransformWidget.prototype._widget = null;
 /*unghiul al rotatiei curente*/
 TransformWidget.prototype._currentAngle = Math.PI / 4;
+/*transformarea curenta - este activata cand se incepe drag-ul si resetata cand se ridica mousul*/
+/*daca transformarea este peste 10 inseamna ca se misca un punct*/
+TransformWidget.prototype._currentTransform = -1;
 
 TransformWidget.prototype.UpdateWidget = function (widget) {
     this._widget = widget;
 }
 
-TransformWidget.prototype.Click = function (x, y) {
+TransformWidget.prototype.MouseDown = function (x, y) {
     if (this._widget == null)
         return;
+}
+
+TransformWidget.prototype.MouseUp = function (x, y) {
+    if (this._widget == null)
+        return;
+
+    this._currentTransform = -1;
+    this._currentAngle = Math.PI / 4;
+    this._widget.Invalidate();
 }
 
 TransformWidget.prototype.Drag = function (fromX, fromY, toX, toY) {
     if (this._widget == null)
         return;
 
+    if (this._currentTransform == -1)
+        this._DetectTransform(fromX, fromY);
+
     var that = this; var ignore = false;
-    var rotateX = that._widget.GetBounds().Position.X + that._widget.GetBounds().PivotX + 100 * Math.cos(this._currentAngle);
-    var rotateY = that._widget.GetBounds().Position.Y + that._widget.GetBounds().PivotY + 100 * Math.sin(this._currentAngle);
-    //var angle = 
 
     /*intai verificam daca se misca vre-un punct din poligon*/
-    this._widget.GetBounds().Each(function (point, index) {
-        if (((fromX - (point.X + that._widget.GetBounds().Position.X)) * (fromX - (point.X + that._widget.GetBounds().Position.X))
-            + (fromY - (point.Y + that._widget.GetBounds().Position.Y)) * (fromY - (point.Y + that._widget.GetBounds().Position.Y)))
-            < 100) {
-
-            that._widget.GetBounds()._points[index].X += (toX - fromX);
-            that._widget.GetBounds()._points[index].Y += (toY - fromY);
-            that._widget.UpdateBounds();
-
-            ignore = true;
-        }
-    });
-
-    /*verificam daca miscam pivotul*/
-    if (!ignore &&
-            ((fromX - rotateX) * (fromX - rotateX)
-            + (fromY - rotateY) * (fromY - rotateY))
-            < 100) {
-
-        this._currentAngle += 0.1;
-        that._widget.GetBounds().Rotate(0.1);
+    if (this._currentTransform >= 10) {
+        that._widget.GetBounds()._points[this._currentTransform - 10].X += (toX - fromX);
+        that._widget.GetBounds()._points[this._currentTransform - 10].Y += (toY - fromY);
         that._widget.UpdateBounds();
 
-        ignore = true;
-    }
+        /*verificam daca rotim polygonul*/
+    } else if (this._currentTransform == 2) {
+        var pivotX = that._widget.GetBounds().Position.X + that._widget.GetBounds().PivotX;
+        var pivotY = that._widget.GetBounds().Position.Y + that._widget.GetBounds().PivotY;
 
-    /*verificam daca rotim polygonul*/
-    if (!ignore &&
-            ((fromX - (that._widget.GetBounds().PivotX + that._widget.GetBounds().Position.X)) *
-            (fromX - (that._widget.GetBounds().PivotX + that._widget.GetBounds().Position.X))
-            + (fromY - (that._widget.GetBounds().PivotY + that._widget.GetBounds().Position.Y)) *
-            (fromY - (that._widget.GetBounds().PivotY + that._widget.GetBounds().Position.Y)))
-            < 100) {
+        var angle = Math.atan2(pivotY - toY, pivotX - toX) - Math.atan2(pivotY - fromY, pivotX - fromX);
 
-        that._widget.GetBounds().PivotX = fromX - that._widget.GetBounds().Position.X;
-        that._widget.GetBounds().PivotY = fromY - that._widget.GetBounds().Position.Y;
+        var x = pivotX + (that._widget.GetBounds().Position.X - pivotX) * Math.cos(angle) -
+                (that._widget.GetBounds().Position.Y - pivotY) * Math.sin(angle) -
+                that._widget.GetBounds().Position.X;
+        var y = pivotY + (that._widget.GetBounds().Position.X - pivotX) * Math.sin(angle) +
+                (that._widget.GetBounds().Position.Y - pivotY) * Math.cos(angle) -
+                that._widget.GetBounds().Position.Y;
+
+        this._currentAngle += angle;
+        /*rotim punctele din poligon*/
+        that._widget.GetBounds().Rotate(angle);
+        /*rotim si centrul poligonului*/
+        that._widget.GetBounds().PivotX -= x;
+        that._widget.GetBounds().PivotY -= y;
+        that._widget.GetBounds().Translate({ X: -x, Y: -y });
+        that._widget.GetBounds().Position.X += x;
+        that._widget.GetBounds().Position.Y += y;
+        
+
         that._widget.UpdateBounds();
 
-        ignore = true;
-    }
+        /*verificam daca miscam pivotul*/
+    } else if (this._currentTransform == 3) {
 
-    /*verificam daca intersectam centrul poligonului*/
-    if (!ignore &&
-            ((fromX - (that._widget.GetBounds().Position.X)) * (fromX - (that._widget.GetBounds().Position.X))
-            + (fromY - (that._widget.GetBounds().Position.Y)) * (fromY - (that._widget.GetBounds().Position.Y)))
-            < 400) {
+        that._widget.GetBounds().PivotX = toX - that._widget.GetBounds().Position.X;
+        that._widget.GetBounds().PivotY = toY - that._widget.GetBounds().Position.Y;
+        that._widget.UpdateBounds();
+
+        /*verificam daca intersectam centrul poligonului*/
+    } else if (this._currentTransform == 4) {
 
         that._widget.GetBounds().Position.X += toX - fromX;
         that._widget.GetBounds().Position.Y += toY - fromY;
         that._widget.UpdateBounds();
-
-        ignore = true;
     }
 
     this._widget.Invalidate();
 }
+
+TransformWidget.prototype._DetectTransform = function (x, y) {
+    var that = this;
+    var rotateX = that._widget.GetBounds().Position.X + that._widget.GetBounds().PivotX + 100 * Math.cos(this._currentAngle);
+    var rotateY = that._widget.GetBounds().Position.Y + that._widget.GetBounds().PivotY + 100 * Math.sin(this._currentAngle);
+
+    /*intai verificam daca se misca vre-un punct din poligon*/
+    this._widget.GetBounds().Each(function (point, index) {
+        if (((x - (point.X + that._widget.GetBounds().Position.X)) * (x - (point.X + that._widget.GetBounds().Position.X))
+            + (y - (point.Y + that._widget.GetBounds().Position.Y)) * (y - (point.Y + that._widget.GetBounds().Position.Y))) < 100) {
+            that._currentTransform = 10 + parseInt(index);
+        }
+    });
+
+    /*verificam daca rotim polygonul*/
+    if (this._currentTransform == -1 && ((x - rotateX) * (x - rotateX) + (y - rotateY) * (y - rotateY)) < 100) {
+        that._currentTransform = 2;
+    }
+
+    /*verificam daca miscam pivotul*/
+    if (this._currentTransform == -1 &&
+            ((x - (that._widget.GetBounds().PivotX + that._widget.GetBounds().Position.X)) *
+            (x - (that._widget.GetBounds().PivotX + that._widget.GetBounds().Position.X))
+            + (y - (that._widget.GetBounds().PivotY + that._widget.GetBounds().Position.Y)) *
+            (y - (that._widget.GetBounds().PivotY + that._widget.GetBounds().Position.Y)))
+            < 100) {
+        that._currentTransform = 3;
+    }
+
+    /*verificam daca intersectam centrul poligonului*/
+    if (this._currentTransform == -1 &&
+            ((x - that._widget.GetBounds().Position.X) * (x - that._widget.GetBounds().Position.X)
+            + (y - that._widget.GetBounds().Position.Y) * (y - that._widget.GetBounds().Position.Y)) < 400) {               
+        that._currentTransform = 4;
+    }
+
+    this._widget.Invalidate();
+} 
 
 TransformWidget.prototype.Draw = function (context) {
     if (this._widget == null)
@@ -429,6 +481,10 @@ var WhiteBoard = function (toolbox, canvas) {
     this._mouseDown = false;
     /*daca ignoram click-ul (daca a fost preluat de drag)*/
     this._ignoreMouseUp = false;
+
+    /*cream evenimentele*/
+    this.ELayerAdd = jQuery.Event("layerAdd");
+    this.ELayerRemove = jQuery.Event("layerRemove");
 }
 
 WhiteBoard.prototype._layers = null; ;
@@ -446,8 +502,8 @@ WhiteBoard.prototype._startY = 0;
 WhiteBoard.prototype.ActiveLayer = null;
 WhiteBoard.prototype.ActiveWidget = null;
 
-WhiteBoard.prototype.OnLayerAdd = null;
-WhiteBoard.prototype.OnLayerRemove = null;
+WhiteBoard.prototype.ELayerAdd = null;
+WhiteBoard.prototype.ELayerRemove = null;
 
 /*adauga un nou start*/
 WhiteBoard.prototype.PushLayer = function (layer) {
@@ -455,16 +511,17 @@ WhiteBoard.prototype.PushLayer = function (layer) {
 
     this._layers.push(layer);
     this._layersTable[layer.Id] = layer;
-    layer.OnInvalidate = function (layer) { that.InvalidateLayer(layer); };
+    $(layer).bind("invalidate", function (e) { that.InvalidateLayer(e.target); });
 
-    if (this.OnLayerAdd != null)
-        this.OnLayerAdd(layer);
+    /*trimitem evenimentul mai dparte*/
+    this.ELayerAdd.layer = layer;  
+    $(this).trigger(this.ELayerAdd);
 }
 
 /*apelata cand un start trebuie redesenat*/
 WhiteBoard.prototype.InvalidateLayer = function (layer) {
     this.Draw();
-} 
+}
 
 /*scoate un strat*/
 WhiteBoard.prototype.RemoveLayer = function (layerId) {
@@ -479,8 +536,10 @@ WhiteBoard.prototype.RemoveLayer = function (layerId) {
             }
         }
 
-        if (this.OnLayerRemove != null)
-            this.OnLayerRemove(layer);
+        /*trimitem evenimentul mai dparte*/
+        this.ELayerRemove.layer = layer;
+
+        $(this).trigger(this.ELayerRemove);
     } catch (e) {
         console.log(e.toString());
     }
@@ -519,19 +578,20 @@ WhiteBoard.prototype.GetLayerPosition = function (layerId) {
 }
 
 WhiteBoard.prototype.MouseUp = function (x, y) {
-    /*daca nu a fost miscat mousul, trimitem evenimentul catre too box*/
-    if (!this._ignoreMouseUp) {
-        if (this._toolBox._currentTool != null) {
-            this._toolBox._currentTool.Click(x, y);
-        }
+    if (this._toolBox._currentTool != null) {
+        this._toolBox._currentTool.MouseUp(x, y);
     }
 
     this._mouseDown = false;
 }
 
 WhiteBoard.prototype.MouseDown = function (x, y) {
-    var that = this;
+    if (this._toolBox._currentTool != null) {
+        this._toolBox._currentTool.MouseDown(x, y);
+    }
+
     this._ignoreMouseUp = false;
+    /*sa spunem ca a inceput drag-ul*/
     this._mouseDown = true;
 
     /*resetam pozitia de inceput al drag-ului, daca v-a exista*/

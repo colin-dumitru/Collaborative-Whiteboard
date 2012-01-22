@@ -36,7 +36,11 @@ App.prototype.Initialize = function () {
     var that = this;
 
     /*factory-ul de widgeturi*/
-    this._widgetFactory = new WidgetFactory();
+    this._widgetFactory = new WidgetFactory()
+
+    /*tipurile de widgeturi ce pot fi facute*/
+    this._widgetFactory
+
     /*factory-ul de layer-uri*/
     this._layerFactory = new LayerFactory();
     /*toolboxul*/
@@ -44,8 +48,8 @@ App.prototype.Initialize = function () {
     /*tabla propriuzisa*/
     this._whiteBoard = new WhiteBoard(this._toolBox, this._canvas);
 
-    this._whiteBoard.OnLayerAdd = function (layer) { that._LayerAdded.call(that, layer); }
-    this._whiteBoard.OnLayerRemove = function (layer) { that.OnLayerRemove.call(that, layer); }
+    $(this._whiteBoard).bind("layerAdd", function (e) { that._LayerAdded(e.layer); });
+    $(this._whiteBoard).bind("layerRemove", function (e) { that._LayerRemove(e.layer); });
 
     /*adaugam tooluril initile*/
     this._toolBox.AddTool(new SelectTool(this._toolBox, this._whiteBoard));
@@ -74,8 +78,8 @@ App.prototype.AddEmptyLayer = function () {
 App.prototype._LayerAdded = function (layer) {
     var that = this;
 
-    layer.OnWidgetAdd = function (widget) { that._WidgetAdded(widget); }
-    layer.OnWidgetRemove = function (widget) { that._WidgetRemoved(widget); }
+    $(layer).bind("widgetAdd", function (e) { that._WidgetAdded(e.target, e.widget);  });
+    $(layer).bind("widgetRemove", function (e) { that._WidgetRemove( e.target, e.widget); });
 
     var element = document.createElement("li");
 
@@ -84,8 +88,12 @@ App.prototype._LayerAdded = function (layer) {
     element.contentEditable = "true";
     element.innerText = layer;
     element.layer = layer;
+    layer.element = element;
 
     this._layerContainer.appendChild(element);
+
+    /*adaugam si toate widgeturile sale in fereastra*/
+    this._SetWidgetList(layer);
 
     $(element).click(function () {
         /*deselectam restul layer-urilor*/
@@ -94,6 +102,7 @@ App.prototype._LayerAdded = function (layer) {
         });
 
         that._whiteBoard.ActiveLayer = this.layer;
+        that._SetWidgetList(this.layer);
         this.className = "layer_selected";
     });
 
@@ -102,7 +111,48 @@ App.prototype._LayerAdded = function (layer) {
     });
 }
 
-App.prototype._WidgetAdded = function (widget) {
+App.prototype._SetWidgetList = function (layer) {
+    var that = this;
+
+    /*stergem toate widgeturile existe*/
+    while (this._widgetContainer.hasChildNodes())
+        this._widgetContainer.removeChild(this._widgetContainer.firstChild);
+
+    if (layer == null) return;
+
+    layer.EachWidget(function (widget, index) {
+        that._widgetContainer.appendChild(widget.element);
+    });
+}
+
+App.prototype._WidgetAdded = function (layer, widget) {
+
+    var element = document.createElement("li");
+
+    /*setam clasa si valoarea elementului*/
+    element.className = "layer";
+    element.contentEditable = "true";
+    element.innerText = layer;
+    element.widget = widget;
+    widget.element = element;
+
+    $(element).click(function () {
+        /*deselectam restul layer-urilor*/
+        $(that._widgetContainer).find("li").each(function () {
+            this.className = "layer";
+        });
+
+        that._whiteBoard.SetActiveWidget(this.widget);
+        this.className = "layer_selected";
+    });
+
+    $(element).focusout(function () {
+        widget.Name = element.innerText;
+    });
+
+    /*afisam widgetul nou doar daca se afla in layer-ul activ*/
+    if (layer == this._whiteBoard.ActiveLayer)
+        this._widgetContainer.appendChild(element);
 } 
 
 App.prototype.RemoveSelectedLayer = function () {
@@ -131,7 +181,7 @@ App.prototype._LayerRemoved = function (layer) {
     this._whiteBoard.ActiveLayer = null;
 }
 
-App.prototype._WidgetRemoved = function (widget) {
+App.prototype._WidgetRemoved = function (layer, widget) {
 } 
 
 App.prototype.MoveSelectedLayerUp = function () {

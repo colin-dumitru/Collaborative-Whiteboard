@@ -376,13 +376,16 @@ Tool.prototype.WhiteBoard = null;
 
 
 Tool.prototype.OptionChanged = function (option, value) {
-    throw "Not implemented";
 
 }
 
-Tool.prototype.Click = function (x, y) {
-    throw "Not implemented";
+Tool.prototype.MouseDown = function (x, y) {
+
 }
+Tool.prototype.MouseUp = function (x, y) {
+
+}
+
 
 Tool.prototype.Drag = function (fromX, fromY, toX, toY) {
 } 
@@ -414,7 +417,7 @@ function RectangleTool(toolbox, whiteBoard) {
     this.Options = [
         { id: "fgColor", type: "Color", params: { color: this._fgColor} },
         { id: "bgColor", type: "Color", params: { color: this._bgColor} },
-        { id: "type", type: "Combo", params: { list: ["Rectangle", "Circle"]} }
+        { id: "type", type: "Combo", params: { list: ["Rectangle", "Triangle"]} }
     ];
 }
 
@@ -429,7 +432,7 @@ RectangleTool.prototype.OptionChanged = function (option, value) {
     }
 }
 
-RectangleTool.prototype.Click = function (x, y) {
+RectangleTool.prototype.MouseUp = function (x, y) {
     if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
         return;
 
@@ -483,7 +486,7 @@ var TextTool = function (toolbox, whiteBoard) {
 TextTool.prototype = Object.create(Tool.prototype);
 TextTool.prototype.constructor = TextTool;
 
-TextTool.prototype.Click = function (x, y) {
+TextTool.prototype.MouseDown = function (x, y) {
 } 
 
 /*
@@ -511,10 +514,10 @@ SelectTool.prototype.Drag = function (fromX, fromY, toX, toY) {
     this.WhiteBoard.TransformWidget.Drag(fromX, fromY, toX, toY);
 }
 
-SelectTool.prototype.Click = function (x, y) {
+SelectTool.prototype.MouseDown = function (x, y) {
     var that = this;
 
-    this.WhiteBoard.TransformWidget.Click(x, y);
+    this.WhiteBoard.TransformWidget.MouseDown(x, y);
 
     /*cautam widgetul ce se intersecteaza cu punctul*/
     if(this.WhiteBoard.ActiveLayer == null)
@@ -528,4 +531,8 @@ SelectTool.prototype.Click = function (x, y) {
     });
 
 } 
+
+SelectTool.prototype.MouseUp = function(x, y){
+    this.WhiteBoard.TransformWidget.MouseUp(x, y);    
+}
                 

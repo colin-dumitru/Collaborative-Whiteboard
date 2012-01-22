@@ -93,8 +93,19 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <ul id="widgetContainer" class="widgets"></ul>
+                            <td class="widgets">
+                                <ul id="widgetContainer"></ul>
+
+                                <table class="widgetbuttons" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td id="remove_widget_button"></td>
+                                        <td id="difference_widget_button"></td>
+                                        <td id="intersect_widget_button"></td>
+                                        <td id="union_widget_button"></td>
+                                        <td id="up_widget_button"></td>
+                                        <td id="down_widget_button"></td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                         

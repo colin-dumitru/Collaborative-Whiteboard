@@ -82,6 +82,13 @@ Polygon.prototype.Rotate = function (angle) {
     }
 }
 
+Polygon.prototype.Translate = function (point) {
+    for (var p in this._points) {
+        this._points[p].X += point.X;
+        this._points[p].Y += point.Y;
+    }
+}
+
 Polygon.prototype.Each = function (fct) {
     for (var p in this._points) {
         fct(this._points[p], p);
