@@ -20,7 +20,9 @@
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="BoardId" Type="int" Nullable="false" />
-    <Property Name="LayerId" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="LayerId" Type="int" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="Widgets">
     <Key>
@@ -31,6 +33,8 @@
     <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
     <Property Name="WidgetId" Type="int" Nullable="false" />
     <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="UserRights">
     <Key>

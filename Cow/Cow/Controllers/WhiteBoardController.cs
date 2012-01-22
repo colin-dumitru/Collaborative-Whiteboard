@@ -7,6 +7,7 @@ using System.Web.Script.Serialization;
 using Cow.ModelViews;
 using Cow.Data;
 using System.IO;
+using Cow.WhiteBoard;
 
 namespace Cow.Controllers
 {
@@ -50,10 +51,19 @@ namespace Cow.Controllers
         //------------------------------------------------------------------------------------------
         [Authorize]
         public ActionResult Open(int id) {
+            
+
             return View();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-
+        [Authorize]
+        public ActionResult Get()
+        {
+            return Json(new List<Change>() {
+                new Change() {Id = 1, Operation="delete"},
+                new Change() {Id = 1, Operation="delete"}
+            }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

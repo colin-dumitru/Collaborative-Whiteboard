@@ -4,16 +4,23 @@ using System.Linq;
 using System.Web;
 using System.Security.Principal;
 using Cow.Models;
+using System.Web.Script.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Cow.WhiteBoard {
-    public class BoardManager {
+
+namespace Cow.WhiteBoard
+{
+    public class BoardManager
+    {
         private Dictionary<String, User> _connectedUsers = new Dictionary<string, User>();
 
         /*instanta unica a clasei*/
         private static BoardManager _instance = null;
         /*instata publica a clasei*/
-        public static BoardManager Instance {
-            get {
+        public static BoardManager Instance
+        {
+            get
+            {
                 if (_instance == null)
                     _instance = new BoardManager();
 
@@ -28,58 +35,336 @@ namespace Cow.WhiteBoard {
 
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------ 
-        public BoardManager() {
+        public BoardManager()
+        {
 
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        ~BoardManager() {
-             /*salvezi board-urile incarcate inapoi in baza de date*/
+        ~BoardManager()
+        {
+            /*refacem campul order pentru widgeturi si layere */
+            foreach(ActiveBoard b in this._activeBoards.Values){
+                for (int i = 0; i < b.LayerStack.Count(); i++)
+                {
+                    ActiveLayer layer=b.LayerStack[i];
+                    layer.LayerEntity.Order = i;
+                    for (int j = 0; j < layer.WidgetsStack.Count(); j++)
+                    {
+                        ActiveWidget widget = layer.WidgetsStack[j];
+                        widget.WidgetEntity.Order = j;
+                    }
+                }
+            }
+
+            /*salvam baza de date*/
+            this._em.SaveChanges();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        public ActiveBoard GetBoard(int id) {
-            /*daca baord-ul este deja incarcat, il intorci
-             daca nu - il incarci baza de date*/
+        public void SaveBoard(ActiveBoard board)
+        {
+            /*salvam bd si il stergem din activeboards*/
+            this._em.SaveChanges();
+            this._activeBoards.Remove(board.BoardEntity.Id);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        public ActiveBoard GetBoard(int id)
+        {
+            /*daca board-ul este deja incarcat il intoarcem direct */
+            if (this._activeBoards.ContainsKey(id))
+            {
+                return this._activeBoards[id];
+            }
+
+            /* incarcam board-ul din bd*/
+            return _LoadBoard(id);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        private ActiveBoard _LoadBoard(int id)
+        {
+            ActiveBoard newBoard = new ActiveBoard();
 
             var res = (from d in this._em.Boards
                        where d.Id == id
                        select d).ToList();
+            if (res.Count() < 1)
+                return null;
 
-            return null;
+            Board b = res[0];
+            /* ii salvam entitatea*/
+            newBoard.BoardEntity = b;
+
+            /* adaugam layers din bd */
+            var res1 = (from d in this._em.Layers
+                        where d.BoardId == b.Id
+                        select d).ToList();
+
+            newBoard.LayerStack = new List<ActiveLayer>(res1.Count);
+
+            foreach (Layer l in res1)
+            {
+                ActiveLayer newLayer = new ActiveLayer();
+                newLayer.LayerEntity = l;
+                newLayer.Id = l.LayerId;
+                newLayer.Name = l.Name;
+                newBoard.Layers.Add(l.Id, newLayer);
+                newBoard.LayerStack[l.Order] =  newLayer;
+            }
+
+            /* adaugam widgeturile pentru fiecare layer*/
+            foreach (KeyValuePair<int, ActiveLayer> activeLayerPair in newBoard.Layers)
+            {
+                var res2 = (from d in this._em.Widgets
+                            where d.LayerId == activeLayerPair.Key
+                            select d).ToList();
+
+                activeLayerPair.Value.WidgetsStack = new List<ActiveWidget>(res2.Count);
+
+                foreach (Widget w in res2)
+                {
+                    ActiveWidget newWidget = new ActiveWidget();
+                    newWidget.WidgetEntity = w;
+                    newWidget.WidgetId = w.WidgetId;
+                    newWidget.Type = w.Type;
+                    newWidget.Data = w.Data;
+                    newWidget.Name = w.Name;
+
+                    activeLayerPair.Value.Widgets.Add(newWidget.WidgetId, newWidget);
+                    activeLayerPair.Value.WidgetsStack[w.Order] = newWidget;
+                }
+            }
+
+            /* adaugam userii care au drepturi asupra boardului*/
+            var res3 = (from d in this._em.UserRights
+                        where d.BoardId == id
+                        select d).ToList();
+
+            foreach (UserRight ur in res3 )
+            {
+                User u = new User();
+                u.Username = ur.User;
+                newBoard.Users.Add(u.Username, u);
+            }
+
+
+            /* adaugam noul board incarcat in lista activa*/
+            this._activeBoards.Add(b.Id, newBoard);
+            return newBoard;
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        private ActiveBoard _LoadBoard(int id) {
-            ActiveBoard ret = new ActiveBoard();
+        public void PushChange(int boardId, Change change, IPrincipal user)
+        {
+            /*punem la ceialti utilizatori modificarea produsa*/
+            if (!this._activeBoards.ContainsKey(boardId))
+                throw new Exception("Board id not found in ActiveBoards");
 
-            /*incarci un Board din baza de date cu id-ul specificat*/
+            ActiveBoard board = this._activeBoards[boardId];
+            if (!board.Users.ContainsKey(user.Identity.Name))
+                throw new Exception("Username not found in board's userlist");
 
-            /*apoi incarci Layer-urile ce apartin Board-ului incarcat*/
-            /*idem si pentru UserRight*/
+            switch (change.Operation)
+            {
+                case "add":
+                    if (change.Obj == "layer")
+                    {
+                        this._AddLayer(board, change);
+                    }
+                    else if (change.Obj == "widget")
+                    {
+                        this._AddWidget(board, change);
+                    }
+                    break;
+                case "remove": /*il stergem din entities si din dictionar*/
+                    if (change.Obj == "layer")
+                    {
+                        ActiveLayer layer = board.Layers[change.Id];
+                        /*scoatem widgets entities pt acest layer si le stergem din _em*/
 
-            /*pentru fiecare Layer incarcat, creezi o instanta de ActiveLayer si bagi in Board*/
-            /*pentru fiecare layer faci o selectie dupa Widgets-urile ce apartin layer-ului, creezi
-             o instanta ActiveWidget si il inserezi in layer-ul corespunzator*/
+                        foreach (ActiveWidget w in layer.WidgetsStack)
+                        {
+                            this._em.DeleteObject(w.WidgetEntity);
+                        }
+
+                        /*stergem si acest layer din board din _em*/
+                        this._em.DeleteObject(layer.LayerEntity);
+
+                        /*stergem layerul din activelayers pt acest board*/
+
+                        board.Layers.Remove(change.Id);
+                        //board.LayerStack.Remove(layer.o
+                    }
+                    else if (change.Obj == "widget")
+                    {
+                        /*get the layer id*/
+                        var jss = new JavaScriptSerializer();
+                        ChangeDataWidget cd = jss.Deserialize<ChangeDataWidget>(change.ChangeString);
+
+                        /*delete from entities*/
+                        Widget entity = board.Layers[cd.LayerId].GetWidget(cd.Id).WidgetEntity;
+                        this._em.DeleteObject(entity);
+                        /*delete the widget from the layer of that board*/
+                        board.Layers[cd.LayerId].RemoveWidget(cd.Id);
+                    }
+
+                    break;
+                case "change":
+                    if (change.Obj == "layer")
+                        this._ChangeLayer(board, change);
+                    else if (change.Obj == "widget")
+                        this._ChangeWidget(board, change);
+                    break;
+            }
+            foreach (KeyValuePair<string, User> uPair in board.Users)
+            {
+                if (uPair.Value.Username != user.Identity.Name)
+                {
+                    uPair.Value.Changes.Add(change);
+                }
+            }
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        private void _AddLayer(ActiveBoard b, Change change)
+        {
+            ActiveLayer newActiveLayer = new ActiveLayer();
+            var jss=new JavaScriptSerializer();
+            ChangeDataLayer cd = jss.Deserialize<ChangeDataLayer>(change.ChangeString);
+            newActiveLayer.Id = cd.Id;
+            newActiveLayer.Name = cd.Name;
+
+            /*creem si o entitate in bd*/
+            Layer newLayer = new Layer();
+            newActiveLayer.LayerEntity = newLayer;
+            newLayer.LayerId = cd.Id;
+            newLayer.Order = cd.Order;
+            newLayer.BoardId = b.BoardEntity.Id;
+            newLayer.Name = cd.Name;
+            
+            /*inseram in stackul de layere din board*/
+            b.Layers.Add(cd.Id, newActiveLayer);
+            b.LayerStack.Insert(cd.Order, newActiveLayer);
+
+            this._em.AddToLayers(newLayer);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        private void _AddWidget(ActiveBoard b, Change change)
+        {
+            ActiveWidget newActiveWidget = new ActiveWidget();
+            var jss = new JavaScriptSerializer();
+            ChangeDataWidget cd = jss.Deserialize<ChangeDataWidget>(change.ChangeString);
+            newActiveWidget.WidgetId = cd.Id;
+            newActiveWidget.Name = cd.Name;
+            newActiveWidget.Type = cd.Type;
+            newActiveWidget.Data = cd.Data;
+
+            /*creem si o entitate in bd*/
+            Widget newWidget = new Widget();
+            newActiveWidget.WidgetEntity = newWidget;
+            newWidget.WidgetId = cd.Id;
+            newWidget.Order = cd.Order;
+            newWidget.LayerId = cd.LayerId;
+            newWidget.Name = cd.Name;
+            newWidget.Data = cd.Data;
+
+            /*inseram in listele de widgeturi din layer*/
+            b.Layers[cd.LayerId].Widgets.Add(cd.Id, newActiveWidget);
+            b.Layers[cd.LayerId].WidgetsStack.Insert(cd.Order,newActiveWidget);
+
+            this._em.AddToWidgets(newWidget);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        private void _ChangeLayer(ActiveBoard b, Change change)
+        {
+            /*verificam ce s-a schimbat */
+            var jss = new JavaScriptSerializer();
+            ChangeDataLayer cd = jss.Deserialize<ChangeDataLayer>(change.ChangeString);
+
+            /*cautam activelayer-ul corespunzator*/
+            if (!b.Layers.ContainsKey(cd.Id))
+                throw new Exception("Changed layer id not found");
+
+            ActiveLayer l = b.Layers[cd.Id];
+
+            /*modificam campurile*/
+            l.Name = cd.Name;
+            l.LayerEntity.Name = cd.Name;
+         
+            /*  daca e schimbat orderul, trebuie refacut stack-ul */
+            if (cd.Order != l.LayerEntity.Order)
+            {
+                l.LayerEntity.Order = cd.Order;
+                /*il stergem din pozitia existenta*/
+                b.LayerStack.Remove(l);
+                /*il reinseram*/
+                b.LayerStack.Insert(cd.Order,l);
+            }
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        private void _ChangeWidget(ActiveBoard b, Change change)
+        {
+            /*verificam ce s-a schimbat */
+            var jss = new JavaScriptSerializer();
+            ChangeDataWidget cd = jss.Deserialize<ChangeDataWidget>(change.ChangeString);
+
+            /*cautam activelayer-ul parinte*/
+            if (!b.Layers.ContainsKey(cd.LayerId))
+                throw new Exception("Parent layer id for changed widget not found");
+
+            ActiveLayer l = b.Layers[cd.LayerId];
+
+            /*cautam activewidget-ul corespunzator*/
+            if (!l.Widgets.ContainsKey(cd.Id))
+                throw new Exception("Changed widget id not found");
+            ActiveWidget w = l.Widgets[cd.Id];
+
+
+            /*modificam campurile*/
+            w.Name = (w.WidgetEntity.Name = cd.Name);
+            w.Type = (w.WidgetEntity.Type = cd.Type);
+            w.Data = (w.WidgetEntity.Data = cd.Data);
+
+            /*  daca e schimbat orderul, trebuie refacut stack-ul */
+            if (cd.Order != w.WidgetEntity.Order)
+            {
+                w.WidgetEntity.Order = cd.Order;
+                /*il stergem din pozitia existenta*/
+                l.WidgetsStack.Remove(w);
+                /*il reinseram*/
+                l.WidgetsStack.Insert(cd.Order,w);
+            }
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        public List<Change> GetChanges(int boardId, IPrincipal user)
+        {
+            /*iei modificarile din lista utilizatorlui, si o intorci*/
+            /*resetezi lista de modificari*/
+            if (!this._activeBoards.ContainsKey(boardId))
+            {
+
+            }
+            ActiveBoard board = this._activeBoards[boardId];
+            if (!board.Users.ContainsKey(user.Identity.Name))
+            {
+
+            }
+            User u = board.Users[user.Identity.Name];
+            List<Change> ret = new List<Change>();
+            foreach (Change ch in u.Changes)
+                ret.Add(ch);
+            u.Changes.Clear();
 
             return ret;
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        public void PushChange(int boardId, Change change, IPrincipal user) {
-            /*pui la ceialti utilizatori modificarea produsa*/
-            /*user.Identity.Name; - username-ul la user*/
-        }
-        //------------------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------------------
-        public List<Change> GetChanges(int boardId, IPrincipal user) {
-            /*iei modificarile din lista utilizatorlui, si o intorci*/
-            /*resetezi lista de modificari*/
 
-            return null;
-        }
-        //------------------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------------------
-				
     }
 }

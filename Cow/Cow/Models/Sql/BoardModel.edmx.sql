@@ -2,8 +2,8 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, and Azure
 -- --------------------------------------------------
--- Date Created: 01/21/2012 20:49:11
--- Generated from EDMX file: E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\Models\BoardModel.edmx
+-- Date Created: 01/22/2012 14:34:08
+-- Generated from EDMX file: C:\Users\bkt\Desktop\CoW\Cow\Cow\Models\BoardModel.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
@@ -51,7 +51,9 @@ GO
 CREATE TABLE [dbo].[Layers] (
     [Id] int IDENTITY(1,1) NOT NULL,
     [BoardId] int  NOT NULL,
-    [LayerId] nvarchar(max)  NOT NULL
+    [LayerId] int  NOT NULL,
+    [Order] int  NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
 );
 GO
 
@@ -61,7 +63,9 @@ CREATE TABLE [dbo].[Widgets] (
     [LayerId] int  NOT NULL,
     [Data] nvarchar(max)  NOT NULL,
     [WidgetId] int  NOT NULL,
-    [Type] nvarchar(max)  NOT NULL
+    [Type] nvarchar(max)  NOT NULL,
+    [Order] int  NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
 );
 GO
 

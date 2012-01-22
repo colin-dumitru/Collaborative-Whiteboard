@@ -20,7 +20,9 @@
     </Key>
     <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Type="Int32" Name="BoardId" Nullable="false" />
-    <Property Type="String" Name="LayerId" Nullable="false" />
+    <Property Type="Int32" Name="LayerId" Nullable="false" />
+    <Property Type="Int32" Name="Order" Nullable="false" />
+    <Property Type="String" Name="Name" Nullable="false" />
   </EntityType>
   <EntityType Name="Widget">
     <Key>
@@ -31,6 +33,8 @@
     <Property Type="String" Name="Data" Nullable="false" />
     <Property Type="Int32" Name="WidgetId" Nullable="false" />
     <Property Type="String" Name="Type" Nullable="false" />
+    <Property Type="Int32" Name="Order" Nullable="false" />
+    <Property Type="String" Name="Name" Nullable="false" />
   </EntityType>
   <EntityType Name="UserRight">
     <Key>

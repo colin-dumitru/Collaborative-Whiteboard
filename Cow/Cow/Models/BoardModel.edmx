@@ -25,7 +25,9 @@
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="BoardId" Type="int" Nullable="false" />
-    <Property Name="LayerId" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="LayerId" Type="int" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="Widgets">
     <Key>
@@ -36,6 +38,8 @@
     <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
     <Property Name="WidgetId" Type="int" Nullable="false" />
     <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="UserRights">
     <Key>
@@ -70,7 +74,9 @@
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int32" Name="BoardId" Nullable="false" />
-          <Property Type="String" Name="LayerId" Nullable="false" />
+          <Property Type="Int32" Name="LayerId" Nullable="false" />
+          <Property Type="Int32" Name="Order" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" />
         </EntityType>
         <EntityType Name="Widget">
           <Key>
@@ -81,6 +87,8 @@
           <Property Type="String" Name="Data" Nullable="false" />
           <Property Type="Int32" Name="WidgetId" Nullable="false" />
           <Property Type="String" Name="Type" Nullable="false" />
+          <Property Type="Int32" Name="Order" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" />
         </EntityType>
         <EntityType Name="UserRight">
           <Key>
@@ -112,6 +120,8 @@
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="BoardId" ColumnName="BoardId" />
           <ScalarProperty Name="LayerId" ColumnName="LayerId" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -123,6 +133,8 @@
           <ScalarProperty Name="Data" ColumnName="Data" />
           <ScalarProperty Name="WidgetId" ColumnName="WidgetId" />
           <ScalarProperty Name="Type" ColumnName="Type" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -157,8 +169,8 @@
     <Diagrams>
       <Diagram Name="BoardModel" ZoomLevel="112">
         <EntityTypeShape EntityType="Models.Board" Width="1.5" PointX="2.625" PointY="1.375" Height="1.59568359375" />
-        <EntityTypeShape EntityType="Models.Layer" Width="1.5" PointX="6.875" PointY="1.5" Height="1.59568359375" />
-        <EntityTypeShape EntityType="Models.Widget" Width="1.5" PointX="9.125" PointY="1.5" Height="1.9802864583333331" />
+        <EntityTypeShape EntityType="Models.Layer" Width="1.5" PointX="6.875" PointY="1.5" Height="1.9802864583333331" />
+        <EntityTypeShape EntityType="Models.Widget" Width="1.5" PointX="9.125" PointY="1.5" Height="2.3648893229166665" />
         <EntityTypeShape EntityType="Models.UserRight" Width="1.5" PointX="4.875" PointY="1.375" Height="1.787985026041667" />
       </Diagram>
     </Diagrams>
