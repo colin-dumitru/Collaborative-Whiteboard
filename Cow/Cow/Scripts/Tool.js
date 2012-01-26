@@ -339,6 +339,7 @@ ToolBox.prototype._ChangeToolSelection = function (tool) {
     /*resetam starea eleentului selectat anterios*/
     if (this._currentTool != null) {
         this._currentTool.Element.style.backgroundColor = "";
+        this._currentTool.Finish();
     }
 
     this._currentTool = tool;
@@ -423,20 +424,11 @@ Tool.prototype.WhiteBoard = null;
 Tool.prototype.WidgetFactory = null;
 
 
-Tool.prototype.OptionChanged = function (option, value) {
-
-}
-
-Tool.prototype.MouseDown = function (x, y) {
-
-}
-Tool.prototype.MouseUp = function (x, y) {
-
-}
-
-
-Tool.prototype.Drag = function (fromX, fromY, toX, toY) {
-} 
+Tool.prototype.OptionChanged = function (option, value) {}
+Tool.prototype.MouseDown = function (x, y) {}
+Tool.prototype.MouseUp = function (x, y) {}
+Tool.prototype.Finish = function() {} 
+Tool.prototype.Drag = function (fromX, fromY, toX, toY) {} 
 
 /*
 ---------------------------------------------------------------------------
@@ -465,13 +457,16 @@ function RectangleTool(toolbox, whiteBoard, factory) {
     this._value = "Rectangle";
     this._lineWidth = 1;
 
+    /*tipul default*/
+    this._type = "Rectangle";
+
     /*setam imaginea ce va fi afisata in toolbox*/
     (this.Icon = new Image()).src = "/Images/icon_rectangle.png";
     /*optiunile*/
     this.Options = [
         { id: "fgColor", type: "Color", params: { color: this._fgColor} },
         { id: "bgColor", type: "Color", params: { color: this._bgColor} },
-        { id: "type", type: "Combo", params: { list: ["Rectangle", "Triangle"]} },
+        { id: "type", type: "Combo", params: { list: ["Rectangle", "Triangle", "Circle"]} },
         { id: "lineWidth", type: "Input", params: { value : "1"}}
     ];
 }
@@ -493,14 +488,16 @@ RectangleTool.prototype.MouseUp = function (x, y) {
     if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
         return;
 
-    var widget = Create(this.WidgetFactory.BuildWidget("polygon"), {
+    var base = null;
+
+    if(this._type == "Rectangle" || this._type == "Triangle" )
+        base = this.WidgetFactory.BuildWidget("polygon");
+    else if(this._type == "Circle")
+        base = this.WidgetFactory.BuildWidget("circle");
+
+    var widget = Create( base, {
         Polygon: Create(new Polygon(), {
-            _points: [
-                Create(new Point(), { X: - (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) }),
-                Create(new Point(), { X:   (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) }),
-                Create(new Point(), { X:   (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) }),
-                Create(new Point(), { X: - (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) })
-            ],
+            _points: [ ],
             PivotX: 0,
             PivotY: 0,
             Position: Create(new Point(), {X : x, Y : y}),
@@ -508,8 +505,30 @@ RectangleTool.prototype.MouseUp = function (x, y) {
         BgColor: this._bgColor,
         FgColor: this._fgColor,
         LineWidth: this._lineWidth,
-        Name: "Rectangle"
+        Name: "Polygon"
     });
+
+    if(this._type == "Rectangle") {
+        widget.Polygon._points = [
+                { X: - (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) },
+                { X:   (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) },
+                { X:   (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) },
+                { X: - (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) }
+        ];
+        widget.Name = "Rectangle";
+    } else if (this._type == "Triangle") {
+        widget.Polygon._points = [
+                { X: - (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) },
+                { X:   (this.DefaultWidth / 2), Y:   (this.DefaultHeight / 2) },
+                { X:                         0, Y: - (this.DefaultHeight / 2)}
+        ];
+        widget.Name = "Triangle"; 
+    } else if(this._type == "Circle") {
+        widget.Polygon._points = [
+                { X: + this.DefaultWidth, Y: 0},
+        ];
+        widget.Name = "Circle"; 
+    }
 
     widget.UpdateBounds();
 
@@ -519,8 +538,6 @@ RectangleTool.prototype.MouseUp = function (x, y) {
     this.WhiteBoard.SetActiveWidget(widget);
     /*sincronizam cu servverul*/
     widget.Sync("add");
-    /*schimbam la toolul de selectie*/
-    this.ToolBox.ChangeToolSelection("select");
 } 
 
 
@@ -591,8 +608,6 @@ TextTool.prototype.MouseUp = function (x, y) {
 
     /*schimbam selectia*/
     this.WhiteBoard.SetActiveWidget(widget);
-    /*schimbam la toolul de selectie*/
-    this.ToolBox.ChangeToolSelection("select");
 } 
 /*
 ---------------------------------------------------------------------------
@@ -650,8 +665,6 @@ ImageTool.prototype.MouseUp = function (x, y) {
 
     /*schimbam selectia*/
     this.WhiteBoard.SetActiveWidget(widget);
-    /*schimbam la toolul de selectie*/
-    this.ToolBox.ChangeToolSelection("select");
 } 
 /*
 ---------------------------------------------------------------------------
@@ -744,8 +757,6 @@ BrushTool.prototype.MouseUp = function (x, y) {
 
     /*schimbam selectia*/
     this.WhiteBoard.SetActiveWidget(widget);
-    /*schimbam la toolul de selectie*/
-    this.ToolBox.ChangeToolSelection("select");
 }
 
 
@@ -754,6 +765,7 @@ BrushTool.prototype.Drag = function(x, y) {
 
     /*desenam si in cavas-ul principal*/
     this.WhiteBoard._context.lineCap = "round";
+    this.WhiteBoard._context.lineJoin = "round";
     this.WhiteBoard._context.strokeStyle = this._color;
     this.WhiteBoard._context.lineWidth = this._width;
     this.WhiteBoard._context.beginPath();
@@ -771,7 +783,98 @@ BrushTool.prototype.Drag = function(x, y) {
     this._lastX = x;
     this._lastY = y;
 }  
+/*
+---------------------------------------------------------------------------
+------------------------Polygon Tool---------------------------------------
+---------------------------------------------------------------------------
+*/
+ 
+PolygonTool.prototype = Object.create(Tool.prototype);
+PolygonTool.prototype.constructor = PolygonTool;
 
+PolygonTool.prototype.DefaultWidth = 100;
+PolygonTool.prototype.DefaultHeight = 50;
+
+PolygonTool.prototype._bgColor = null;
+PolygonTool.prototype._fgColor = null;
+PolygonTool.prototype._lineWidth = null;
+/*widgetul curent in care adaugam punctele*/
+PolygonTool.prototype._widget = null;
+
+function PolygonTool(toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);    
+
+    this.Id = "polygon";
+
+    this._bgColor = "#FFF";
+    this._fgColor = "#000";
+    this._lineWidth = 1;
+
+    /*setam imaginea ce va fi afisata in toolbox*/
+    (this.Icon = new Image()).src = "/Images/icon_polygon.png";
+    /*optiunile*/
+    this.Options = [
+        { id: "fgColor", type: "Color", params: { color: this._fgColor} },
+        { id: "bgColor", type: "Color", params: { color: this._bgColor} },
+        { id: "lineWidth", type: "Input", params: { value : "1"}}
+    ];
+}
+
+
+PolygonTool.prototype.OptionChanged = function (option, value) {
+    if (option == "fgColor") {
+        this._fgColor = value.color;
+    } else if (option == "bgColor") {
+        this._bgColor = value.color;
+    } else if (option == "lineWidth") {
+        this._lineWidth = parseInt(value.value); 
+    }
+}
+
+PolygonTool.prototype.MouseUp = function (x, y) {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    if(this._widget == null) {
+        var widget = Create(this.WidgetFactory.BuildWidget("polygon"), {
+            Polygon: Create(new Polygon(), {
+                _points: [],
+                PivotX: 0,
+                PivotY: 0,
+                Position: Create(new Point(), {X : x, Y : y}),
+            }),
+            BgColor: this._bgColor,
+            FgColor: this._fgColor,
+            LineWidth: this._lineWidth,
+            Name: "Polygon"
+        });
+
+        widget.UpdateBounds();
+
+        /*adaugam widget-ul in layer-ul activ*/
+        this.WhiteBoard.ActiveLayer.PushWidget(widget);
+        /*schimbam selectia*/
+        this.WhiteBoard.SetActiveWidget(widget);
+        /*sincronizam cu servverul*/
+        widget.Sync("add");
+
+        this._widget = widget;
+    }
+
+    /*adaugam punctul curent in widget*/       
+    this._widget.Polygon._points.push({X : x - this._widget.Polygon.Position.X, 
+                                        Y : y - this._widget.Polygon.Position.Y});
+    this._widget.Invalidate();
+    this._widget.Sync();
+} 
+
+PolygonTool.prototype.Finish = function() {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    /*schimbam la toolul de selectie*/
+    this._widget = null;
+} 
 /*
 ---------------------------------------------------------------------------
 ---------------------------Select Tool-------------------------------------

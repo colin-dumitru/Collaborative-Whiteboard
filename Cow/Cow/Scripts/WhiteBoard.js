@@ -136,15 +136,102 @@ PolygonWidget.prototype.Deserialize = function (obj) {
 }
 /*
 ---------------------------------------------------------------------------
+--------------------------------Circle Widget------------------------------
+---------------------------------------------------------------------------
+*/
+var CircleWidget = function (options) {
+    Widget.call(this, options);
+
+    /*cream un nou poligon gol*/
+    this.Polygon = new Polygon();
+    /*permitem operatiile boolene*/
+    this.AllowBool = false;
+}
+
+CircleWidget.prototype = Object.create(Widget.prototype);
+CircleWidget.prototype.constructor = CircleWidget;
+
+CircleWidget.prototype.Polygon = null;
+CircleWidget.prototype.BgColor = "#555";
+CircleWidget.prototype.FgColor = "#AAA";
+CircleWidget.prototype.LineWidth = 2;
+CircleWidget.prototype.Type = null;
+
+CircleWidget.prototype.Draw = function (context) {
+    context.beginPath();
+    var first = true;
+    var that = this;
+
+
+    this.Polygon.Each(function (point) {
+        if (first) {
+            var radius = Math.sqrt(point.X * point.X +  point.Y * point.Y);
+            context.arc(that.Polygon.Position.X, that.Polygon.Position.Y, radius, 0, Math.PI * 2, true);
+            first = false;
+        }
+    });
+
+    context.lineCap = "round";
+    context.closePath();
+    context.fillStyle = this.BgColor;
+    context.fill();
+    context.strokeStyle = this.FgColor;
+    context.lineWidth = this.LineWidth;
+    context.stroke();
+}
+
+CircleWidget.prototype.UpdateBounds = function () {
+}
+
+CircleWidget.prototype.GetBounds = function () {
+    return this.Polygon;
+}
+
+CircleWidget.prototype.Includes = function (point) {
+    var that = this; var ret = false;
+
+    this.Polygon.Each(function (p) {
+        var radius = Math.sqrt(p.X * p.X + p.Y * p.Y);
+
+        ret = (((point.X - that.Polygon.Position.X) * (point.X - that.Polygon.Position.X) +
+                (point.Y - that.Polygon.Position.Y) * (point.Y - that.Polygon.Position.Y)) < (radius * radius));
+    });
+    return ret;
+}
+
+CircleWidget.prototype.Serialize = function () {
+    return ret = {
+        Polygon: this.Polygon,
+        BgColor: this.BgColor,
+        FgColor: this.FgColor,
+        LineWidth: this.LineWidth,
+        Type: this.Type,
+        Name: this.Name != null ? this.Name : "Undefined"
+    }
+}
+
+CircleWidget.prototype.Deserialize = function (obj) {
+    this.BgColor = obj.BgColor;
+    this.FgColor = obj.FgColor;
+    this.LineWidth = obj.LineWidth;
+    this.Polygon = Create(new Polygon(), obj.Polygon);
+    this.Name = obj.Name;
+}
+/*
+---------------------------------------------------------------------------
 ----------------------------------Text Widget------------------------------
 ---------------------------------------------------------------------------
 */
-var TextWidget = function (options) {
+var TextWidget = function (options, element, canvas) {
     Widget.call(this, options);
     this.Polygon = new Polygon();
 
     this.AllowTransform = false;
     this.AllowRotate = false;
+
+    /*cream elementul de input*/
+    this._element = element;
+    this._canvas = canvas;
 }
 
 TextWidget.prototype = Object.create(Widget.prototype);
@@ -158,6 +245,8 @@ TextWidget.prototype.Type = null;
 TextWidget.prototype.Text = "Text";
 TextWidget.prototype._width = -1;
 TextWidget.prototype._height = -1;
+TextWidget.prototype._element = null;
+TextWidget.prototype._canvas = null;
 
 TextWidget.prototype.Draw = function (context) {
     context.font = this.Size + "px " + this.Font.toLowerCase();
@@ -212,12 +301,36 @@ TextWidget.prototype.Deserialize = function (obj) {
 }
 
 TextWidget.prototype.KeyUp = function (e) {
-    this.Text += e;
-    this.Invalidate();
 }
 
 TextWidget.prototype.KeyDown = function (e) {
+    if (e == 13) {
+        this._ShowElement(this.Polygon.Position.X, this.Polygon.Position.Y);
+    }
 }
+
+TextWidget.prototype._ShowElement = function (x, y) {
+    var that = this;
+
+    /*setam textul intial*/
+    $(this._element).find("#text").val(this.Text);
+    this._element.style.left = (this._canvas.offsetLeft + x).toString() + "px";
+    this._element.style.top = (this._canvas.offsetTop + y).toString() + "px";
+
+    $(this._element).show("slow");
+
+    $(this._element).find("#done").click(function () {
+        that._HideElement();
+    });
+}
+
+TextWidget.prototype._HideElement = function (x, y) {
+    this.Text = $(this._element).find("#text").val();
+    this.Invalidate();
+    this.Sync();
+    $(this._element).hide("slow");
+}
+
 
 /*
 ---------------------------------------------------------------------------
@@ -358,6 +471,7 @@ BrushWidget.prototype.UpdateBounds = function () {
 
         var context = canvas.getContext("2d");
         context.lineCap = "round";
+        context.lineJoin = "round";
         context.lineWidth = this.Width;
         context.strokeStyle = this.Color;
 
@@ -576,10 +690,14 @@ Layer.prototype.InsertWidget = function (widget) {
 
     $(this).trigger(this.EWidgetAdd);
     $(this).trigger(this.EInvalidate);
-} 
+}
 
 Layer.prototype.GetWidget = function (id) {
     return this._widgetTable[id];
+}
+
+Layer.prototype.Invalidate = function () {
+    $(this).trigger(this.EInvalidate);
 } 
 
 Layer.prototype.InvalidateWidget = function (widget) {
@@ -588,7 +706,7 @@ Layer.prototype.InvalidateWidget = function (widget) {
 }
 
 Layer.prototype.RemoveWidget = function (widgetId) {
-    try {
+    try { 
         var widget = this._widgetTable[widgetId];
 
         if (widget == null)
@@ -617,21 +735,20 @@ Layer.prototype.RemoveWidget = function (widgetId) {
         $(this).trigger(this.EInvalidate);
     } catch (e) {
         console.log(e.toString());
-    }
+    } 
 }
 
-Layer.prototype.SwitchWidget = function (from, to) {
+Layer.prototype.SwitchWidgets = function (from, to) {
     if (from < 0 || from >= this._widgets.length || to < 0 || to >= this._widgets.length)
         return;
 
+    /*schimbam cele 2 widget-uri*/
     var aux = this._widgets[from];
     this._widgets[from] = this._widgets[to];
     this._widgets[to] = aux;
 
-    this._widget[to].Order = to;
-    this._widget[from].Order = from;
-
-    widget.Sync();
+    this._widgets[to].Order = to;
+    this._widgets[from].Order = from;
 }
 
 Layer.prototype.GetWidgetPosition = function (widgetId) {
@@ -647,11 +764,11 @@ Layer.prototype.EachWidget = function (fct) {
     for (var w in this._widgets) {
         fct(this._widgets[w], w);
     }
-} 
+}
 
 Layer.prototype.Draw = function (context) {
-    for (var w in this._widgets) {
-        this._widgets[w].Draw(context);
+    for (var i = (this._widgets.length - 1); i >= 0 ; i--) {
+        this._widgets[i].Draw(context);
     }
 }       
 
@@ -932,10 +1049,10 @@ var WhiteBoard = function (toolbox, canvas) {
         that.MouseMove(e.offsetX, e.offsetY);
     });
     $(canvas).keydown(function (e) {
-        that.KeyDown(String.fromCharCode(e.keyCode));
+        that.KeyDown(e.keyCode);
     });
     $(canvas).keyup(function (e) {
-        that.KeyUp(String.fromCharCode(e.keyCode));
+        that.KeyUp(/*String.fromCharCode(e.keyCode)*/ e.keyCode);
     });
 
     /*cream containerele pentru layers*/
@@ -1029,14 +1146,13 @@ WhiteBoard.prototype.SwitchLayers = function (from, to) {
     if (from < 0 || from >= this._layers.length || to < 0 || to >= this._layers.length)
         return;
 
+    /*schimbam layer-urile intre ele*/
     var aux = this._layers[from];
     this._layers[from] = this._layers[to];
     this._layers[to] = aux;
 
     this._layers[from].Order = from;
     this._layers[to].Order = to;
-
-    layer.Sync();
 
     /*doar redesenam, nu si invalidam*/
     this.Draw();
@@ -1126,7 +1242,7 @@ WhiteBoard.prototype.KeyUp = function (e) {
 WhiteBoard.prototype.Draw = function () {
     this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-    for (var l in this._layers) {
+    for (var l = this._layers.length - 1; l >=0; l--) {
         this._layers[l].Draw(this._context);
     }
 

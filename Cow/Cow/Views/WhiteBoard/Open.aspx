@@ -42,9 +42,10 @@
             var optionsContainer = document.getElementById("optionsContainer");
             var layerContainer = document.getElementById("layerContainer");
             var widgetContainer = document.getElementById("widgetContainer");
+            var inputContainer = document.getElementById("inputContainer");
 
             /*cream o noua aplicatie*/
-            app = new App(canvas, toolContainer, optionsContainer, layerContainer, widgetContainer, userContainer);
+            app = new App(canvas, toolContainer, optionsContainer, layerContainer, widgetContainer, userContainer, inputContainer);
             
             app.Initialize();
         }
@@ -66,6 +67,12 @@
         }
         function MoveLayerDown() {
             app.MoveSelectedLayerDown();
+        }
+        function MoveWidgetUp() {
+            app.MoveSelectedWidgetUp();
+        }
+        function MoveWidgetDown() {
+            app.MoveSelectedWidgetDown();
         }
         function AddUser() {
             /*luam numele utilizatorlui*/
@@ -101,6 +108,10 @@
                                     
                 </td>
                 <td class="canvascontainer">
+                    <div id="inputContainer" class="inputDiv">
+                        <textarea id="text"></textarea>
+                        <button id="done">Done</button>
+                    </div>
                     <canvas id="mainCanvas" class="canvas" width="800" height="600" tabindex="1">
                     </canvas>
                 </td>
@@ -134,8 +145,8 @@
                                         <td id="difference_widget_button" onclick="Bool('difference');"></td>
                                         <td id="intersect_widget_button" onclick="Bool('intersect');"></td>
                                         <td id="union_widget_button" onclick="Bool('union');"></td>
-                                        <td id="up_widget_button"></td>
-                                        <td id="down_widget_button"></td>
+                                        <td id="up_widget_button" onclick="MoveWidgetUp();"></td>
+                                        <td id="down_widget_button" onclick="MoveWidgetDown();"></td>
                                     </tr>
                                 </table>
                             </td>
