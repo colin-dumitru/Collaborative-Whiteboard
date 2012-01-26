@@ -274,6 +274,30 @@ namespace Cow.Models
         private global::System.String _Name;
         partial void OnNameChanging(global::System.String value);
         partial void OnNameChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Seed
+        {
+            get
+            {
+                return _Seed;
+            }
+            set
+            {
+                OnSeedChanging(value);
+                ReportPropertyChanging("Seed");
+                _Seed = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Seed");
+                OnSeedChanged();
+            }
+        }
+        private global::System.Int32 _Seed = 0;
+        partial void OnSeedChanging(global::System.Int32 value);
+        partial void OnSeedChanged();
 
         #endregion
     

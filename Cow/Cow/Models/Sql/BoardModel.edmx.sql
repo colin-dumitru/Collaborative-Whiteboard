@@ -2,8 +2,8 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, and Azure
 -- --------------------------------------------------
--- Date Created: 01/22/2012 14:34:08
--- Generated from EDMX file: C:\Users\bkt\Desktop\CoW\Cow\Cow\Models\BoardModel.edmx
+-- Date Created: 01/23/2012 00:02:28
+-- Generated from EDMX file: E:\my work\C#\Web\Collaborative-Whiteboard\Cow\Cow\Models\BoardModel.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
@@ -43,7 +43,8 @@ GO
 CREATE TABLE [dbo].[Boards] (
     [Id] int IDENTITY(1,1) NOT NULL,
     [Owner] nvarchar(max)  NOT NULL,
-    [Name] nvarchar(max)  NOT NULL
+    [Name] nvarchar(max)  NOT NULL,
+    [Seed] int  NOT NULL
 );
 GO
 

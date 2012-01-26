@@ -13,6 +13,7 @@
     <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Type="String" Name="Owner" Nullable="false" />
     <Property Type="String" Name="Name" Nullable="false" />
+    <Property Type="Int32" Name="Seed" Nullable="false" DefaultValue="0" />
   </EntityType>
   <EntityType Name="Layer">
     <Key>

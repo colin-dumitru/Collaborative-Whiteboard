@@ -34,13 +34,14 @@ Point.prototype.Y = 0;
 */
 var Polygon = function () {
     this._points = [];
-    this._cachedPoints = [];
     this.Position = new Point();
+    this.Rotation = 0;
 }
 
 Polygon.prototype.Position = null;
 Polygon.prototype.PivotX = 0;
 Polygon.prototype.PivotY = 0;
+Polygon.prototype.Rotation = 0;
 
 Polygon.prototype._points = null; ;
 
@@ -66,10 +67,10 @@ Polygon.prototype.AddPoint = function (point) {
 
 Polygon.prototype.ClearPoints = function () {
     this._points = [];
-    this._cachedPoints = [];
 }
 
 Polygon.prototype.Rotate = function (angle) {
+    this.Rotation += angle;
     var x = 0;
     var y = 0;
 

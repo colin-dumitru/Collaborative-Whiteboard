@@ -169,6 +169,50 @@ OptionWidgetCombo.prototype._CreateElement = function () {
 OptionWidgetCombo.prototype._UpdateComboValue = function (value) {
     this.OptionChanged({ value: value });
 }
+/*
+---------------------------------------------------------------------------
+----------------------Widget Input-----------------------------------------
+---------------------------------------------------------------------------
+*/
+OptionWidgetInput.prototype = Object.create(OptionWidget.prototype);
+OptionWidgetInput.prototype.constructor = OptionWidgetInput;
+
+OptionWidgetInput.prototype.Value = 0;  
+
+function OptionWidgetInput(id, params) {
+    this._element = null;
+    this._params = params;
+    this._id = id;
+    this.Value = params.value;
+
+}
+
+OptionWidgetInput.prototype.GetElement = function () {
+    if (this._element == null)
+        this._element = this._CreateElement();
+
+    return this._element;
+}
+
+OptionWidgetInput.prototype._CreateElement = function () {
+    var that = this;
+
+    var element = document.createElement("input");
+    element.className = "input";
+    element.style.width = "100px";
+    element.value = this.Value;
+
+    element.onchange = function (e) {
+        that._UpdateComboValue(element.value);
+    }
+
+    return (this._element = element);
+}
+
+
+OptionWidgetInput.prototype._UpdateComboValue = function (value) {
+    this.OptionChanged({ value: value });
+}
 
 
 /*
@@ -211,6 +255,7 @@ var ToolBox = function (toolContainer, optionsContainer) {
     /*adaugam tipurile de optiuni posibile*/
     this._optionBox.AddWidgetBuilder("Color", function (id, params) { return new OptionWidgetColor(id, params) });
     this._optionBox.AddWidgetBuilder("Combo", function (id, params) { return new OptionWidgetCombo(id, params) });
+    this._optionBox.AddWidgetBuilder("Input", function (id, params) { return new OptionWidgetInput(id, params) });
 
 }
 
@@ -354,9 +399,10 @@ ToolBox.prototype._HideOptionBox = function () {
 */
 
 
-var Tool = function (toolbox, whiteBoard) {
+var Tool = function (toolbox, whiteBoard, factory) {
     this.ToolBox = toolbox;
     this.WhiteBoard = whiteBoard;
+    this.WidgetFactory = factory;
 }
 
 /*id-ul unic*/
@@ -373,6 +419,8 @@ Tool.prototype.Options = [];
 Tool.prototype.ToolBox = null;
 /*white-board-ul afectat*/
 Tool.prototype.WhiteBoard = null;
+/*ce folosim sa cream widgeturi*/
+Tool.prototype.WidgetFactory = null;
 
 
 Tool.prototype.OptionChanged = function (option, value) {
@@ -402,14 +450,20 @@ RectangleTool.prototype.constructor = RectangleTool;
 RectangleTool.prototype.DefaultWidth = 100;
 RectangleTool.prototype.DefaultHeight = 50;
 
-function RectangleTool(toolbox, whiteBoard) {
-    Tool.call(this, toolbox, whiteBoard);    
+RectangleTool.prototype._bgColor = null;
+RectangleTool.prototype._fgColor = null;
+RectangleTool.prototype._type = null;
+RectangleTool.prototype._lineWidth = null;
+
+function RectangleTool(toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);    
 
     this.Id = "rectangle";
 
     this._bgColor = "#FFF";
     this._fgColor = "#000";
     this._value = "Rectangle";
+    this._lineWidth = 1;
 
     /*setam imaginea ce va fi afisata in toolbox*/
     (this.Icon = new Image()).src = "/Images/icon_rectangle.png";
@@ -417,7 +471,8 @@ function RectangleTool(toolbox, whiteBoard) {
     this.Options = [
         { id: "fgColor", type: "Color", params: { color: this._fgColor} },
         { id: "bgColor", type: "Color", params: { color: this._bgColor} },
-        { id: "type", type: "Combo", params: { list: ["Rectangle", "Triangle"]} }
+        { id: "type", type: "Combo", params: { list: ["Rectangle", "Triangle"]} },
+        { id: "lineWidth", type: "Input", params: { value : "1"}}
     ];
 }
 
@@ -429,6 +484,8 @@ RectangleTool.prototype.OptionChanged = function (option, value) {
         this._bgColor = value.color;
     } else if (option == "type") {
         this._type = value.value; 
+    }   else if (option == "lineWidth") {
+        this._lineWidth = parseInt(value.value); 
     }
 }
 
@@ -436,7 +493,7 @@ RectangleTool.prototype.MouseUp = function (x, y) {
     if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
         return;
 
-    var widget = Create(new PolygonWidget(), {
+    var widget = Create(this.WidgetFactory.BuildWidget("polygon"), {
         Polygon: Create(new Polygon(), {
             _points: [
                 Create(new Point(), { X: - (this.DefaultWidth / 2), Y: - (this.DefaultHeight / 2) }),
@@ -449,16 +506,19 @@ RectangleTool.prototype.MouseUp = function (x, y) {
             Position: Create(new Point(), {X : x, Y : y}),
         }),
         BgColor: this._bgColor,
-        FgColor: this._fgColor
+        FgColor: this._fgColor,
+        LineWidth: this._lineWidth,
+        Name: "Rectangle"
     });
 
     widget.UpdateBounds();
 
     /*adaugam widget-ul in layer-ul activ*/
     this.WhiteBoard.ActiveLayer.PushWidget(widget);
-
     /*schimbam selectia*/
     this.WhiteBoard.SetActiveWidget(widget);
+    /*sincronizam cu servverul*/
+    widget.Sync("add");
     /*schimbam la toolul de selectie*/
     this.ToolBox.ChangeToolSelection("select");
 } 
@@ -470,8 +530,8 @@ RectangleTool.prototype.MouseUp = function (x, y) {
 ---------------------------------------------------------------------------
 */
 
-var TextTool = function (toolbox, whiteBoard) {
-    Tool.call(this, toolbox, whiteBoard);
+var TextTool = function (toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);
 
     this.Id = "text";
 
@@ -479,15 +539,238 @@ var TextTool = function (toolbox, whiteBoard) {
     (this.Icon = new Image()).src = "/Images/icon_text.png";
     /*optiunile*/
     this.Options = [
-        { id: "color", type: "Color", params: { color: "#FFF"} }
+        { id: "color", type: "Color", params: { color: "#000"} },
+        { id: "size", type: "Input", params: { value: 10} },
+        { id: "font", type: "Combo", params: { list: ["Arial", "Sans-serif"]} }
     ];
 }
 
 TextTool.prototype = Object.create(Tool.prototype);
 TextTool.prototype.constructor = TextTool;
 
+TextTool.prototype._color = "#555";
+TextTool.prototype._size = 10;
+TextTool.prototype._font = "Arial";
+
 TextTool.prototype.MouseDown = function (x, y) {
 } 
+
+TextTool.prototype.OptionChanged = function (option, value) {
+    if (option == "color") {
+        this._color = value.color;
+    } else if (option == "size") {
+        this._size = parseInt(value.value);
+    } else if (option == "font") {
+        this._font = option;        
+    }
+}
+
+TextTool.prototype.MouseUp = function (x, y) {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    var widget = Create(this.WidgetFactory.BuildWidget("text"), {
+      Polygon: Create(new Polygon(), {
+            _points: [],
+            PivotX: 0,
+            PivotY: 0,
+            Position: Create(new Point(), {X : x, Y : y}),
+        }),
+        Color: this._color,
+        Font : this._font,
+        Size : this._size,
+        Name : "Text"        
+    });
+
+    widget.UpdateBounds();
+
+    /*adaugam widget-ul in layer-ul activ*/
+    this.WhiteBoard.ActiveLayer.PushWidget(widget);
+    /*sincronizam cu servverul*/
+    widget.Sync("add");
+
+    /*schimbam selectia*/
+    this.WhiteBoard.SetActiveWidget(widget);
+    /*schimbam la toolul de selectie*/
+    this.ToolBox.ChangeToolSelection("select");
+} 
+/*
+---------------------------------------------------------------------------
+--------------------------Image Tool---------------------------------------
+---------------------------------------------------------------------------
+*/
+
+var ImageTool = function (toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);
+
+    this.Id = "image";
+    this._url = "http://farm1.staticflickr.com/191/507570615_4706f53ff4.jpg";
+
+    /*setam imaginea ce va fi afisata in toolbox*/
+    (this.Icon = new Image()).src = "/Images/icon_image.png";
+    /*optiunile*/
+    this.Options = [
+        { id: "url", type: "Input", params: { value: this._url} }
+    ];
+}
+
+ImageTool.prototype = Object.create(Tool.prototype);
+ImageTool.prototype.constructor = ImageTool;
+
+ImageTool.prototype._url = null;
+
+ImageTool.prototype.MouseDown = function (x, y) {
+} 
+
+ImageTool.prototype.OptionChanged = function (option, value) {
+    if (option == "url") {
+        this._url = value.value;
+    } 
+}
+
+ImageTool.prototype.MouseUp = function (x, y) {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null || this._url == null)
+        return;
+
+    var widget = Create(this.WidgetFactory.BuildWidget("image"), {
+        /*poligonul se va seta automat cand se incarca imaginea*/
+        Polygon: Create(new Polygon(), {
+            Position : {X : x, Y : y}
+        }),
+        Url: this._url,
+        Name: "Image"      
+    });
+
+    widget.UpdateBounds();
+
+    /*adaugam widget-ul in layer-ul activ*/
+    this.WhiteBoard.ActiveLayer.PushWidget(widget);
+    /*sincronizam cu servverul*/
+    widget.Sync("add");
+
+    /*schimbam selectia*/
+    this.WhiteBoard.SetActiveWidget(widget);
+    /*schimbam la toolul de selectie*/
+    this.ToolBox.ChangeToolSelection("select");
+} 
+/*
+---------------------------------------------------------------------------
+--------------------------Brush Tool---------------------------------------
+---------------------------------------------------------------------------
+*/
+
+var BrushTool = function (toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);
+
+    this.Id = "brush";
+
+    /*setam imaginea ce va fi afisata in toolbox*/
+    (this.Icon = new Image()).src = "/Images/icon_brush.png";
+    /*optiunile*/
+    this.Options = [
+        { id: "width", type: "Input", params: { value: this._width} },
+        { id: "color", type: "Color", params: { color: this._color} }
+    ];
+}
+
+BrushTool.prototype = Object.create(Tool.prototype);
+BrushTool.prototype.constructor = BrushTool;
+
+BrushTool.prototype._width = 10;
+BrushTool.prototype._color = "#000";
+/*liniile ce vor fi folosite sa se recreeze brush-ul*/
+BrushTool.prototype._lines = null;
+BrushTool.prototype._lastX = 0;
+BrushTool.prototype._lastY = 0;
+/*centrul*/
+BrushTool.prototype._originX = 0;
+BrushTool.prototype._originY = 0;
+/*coordonatele maxime si minime*/
+BrushTool.prototype._minX = 0;
+BrushTool.prototype._minY = 0;
+BrushTool.prototype._maxX = 0;
+BrushTool.prototype._maxY = 0;
+
+BrushTool.prototype.MouseDown = function (x, y) {
+
+    /*stergem lista de linii*/
+    this._lines = [ {X : 0, Y : 0}];    
+    /*puncrtul de origine*/
+    this._originX = x;
+    this._originY = y;
+    /*sa recream liniile*/
+    this._lastX = x;
+    this._lastY = y;
+    /*coordonatele maxime si minime*/
+    this._minX = 0;
+    this._minY = 0;
+    this._minX = 0;
+    this._minY = 0;
+} 
+
+BrushTool.prototype.OptionChanged = function (option, value) {
+    if (option == "width") {
+        this._width = parseInt(value.value);
+    } else if(option == "color") {
+        this._color = value.color;
+    }
+}
+
+BrushTool.prototype.MouseUp = function (x, y) {
+    if (this.WhiteBoard == null || this.WhiteBoard.ActiveLayer == null)
+        return;
+
+    var widget = Create(this.WidgetFactory.BuildWidget("brush"), {
+        /*poligonul se va seta automat cand se incarca imaginea*/
+        Polygon: Create(new Polygon(), {
+            Position : {X : this._originX, Y : this._originY}
+        }),
+        Name: "Brush",
+        Color: this._color ,
+        Lines: this._lines ,
+        Width: this._width ,
+        MaxX: this._maxX,
+        MaxY: this._maxY,
+        MinX: this._minX,
+        MinY: this._minY
+    });
+
+    widget.UpdateBounds();
+
+    /*adaugam widget-ul in layer-ul activ*/
+    this.WhiteBoard.ActiveLayer.PushWidget(widget);
+    /*sincronizam cu servverul*/
+    widget.Sync("add");
+
+    /*schimbam selectia*/
+    this.WhiteBoard.SetActiveWidget(widget);
+    /*schimbam la toolul de selectie*/
+    this.ToolBox.ChangeToolSelection("select");
+}
+
+
+BrushTool.prototype.Drag = function(x, y) {
+    this._lines.push( {X : x - this._originX, Y : y -this._originY});    
+
+    /*desenam si in cavas-ul principal*/
+    this.WhiteBoard._context.lineCap = "round";
+    this.WhiteBoard._context.strokeStyle = this._color;
+    this.WhiteBoard._context.lineWidth = this._width;
+    this.WhiteBoard._context.beginPath();
+    this.WhiteBoard._context.moveTo(this._lastX, this._lastY);
+    this.WhiteBoard._context.lineTo(x, y);
+    this.WhiteBoard._context.stroke();
+    this.WhiteBoard._context.closePath();
+
+    /*verificam coordonatele maixmale*/
+    if(this._maxX < (x - this._originX)) this._maxX = (x - this._originX);
+    if(this._maxY < (y - this._originY)) this._maxY = (y - this._originY);
+    if(this._minX > (x - this._originX)) this._minX = (x - this._originX);
+    if(this._minY > (y - this._originY)) this._minY = (y - this._originY);
+    
+    this._lastX = x;
+    this._lastY = y;
+}  
 
 /*
 ---------------------------------------------------------------------------
@@ -495,8 +778,8 @@ TextTool.prototype.MouseDown = function (x, y) {
 ---------------------------------------------------------------------------
 */
 
-var SelectTool = function (toolbox, whiteBoard) {
-    Tool.call(this, toolbox, whiteBoard);
+var SelectTool = function (toolbox, whiteBoard, factory) {
+    Tool.call(this, toolbox, whiteBoard, factory);
 
     this.Id = "select";
 
@@ -517,7 +800,8 @@ SelectTool.prototype.Drag = function (fromX, fromY, toX, toY) {
 SelectTool.prototype.MouseDown = function (x, y) {
     var that = this;
 
-    this.WhiteBoard.TransformWidget.MouseDown(x, y);
+    if(this.WhiteBoard.TransformWidget.MouseDown(x, y))
+        return;
 
     /*cautam widgetul ce se intersecteaza cu punctul*/
     if(this.WhiteBoard.ActiveLayer == null)
@@ -533,6 +817,12 @@ SelectTool.prototype.MouseDown = function (x, y) {
 } 
 
 SelectTool.prototype.MouseUp = function(x, y){
-    this.WhiteBoard.TransformWidget.MouseUp(x, y);    
+    this.WhiteBoard.TransformWidget.MouseUp(x, y);   
 }
-                
+
+SelectTool.prototype.KeyUp = function(e) {
+    this.WhiteBoard.TransformWidget.KeyUp(e);
+} 
+SelectTool.prototype.KeyDown = function(e) {
+    this.WhiteBoard.TransformWidget.KeyDown(e);
+}                 

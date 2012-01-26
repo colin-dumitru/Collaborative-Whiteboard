@@ -13,6 +13,7 @@
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Seed" Type="int" Nullable="false" DefaultValue="0" />
   </EntityType>
   <EntityType Name="Layers">
     <Key>

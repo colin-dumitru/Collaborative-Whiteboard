@@ -8,11 +8,11 @@ using Cow.ModelViews;
 using Cow.Data;
 using System.IO;
 using Cow.WhiteBoard;
+using Cow.Models;
+using ClipperLib;
 
-namespace Cow.Controllers
-{
-    public class WhiteBoardController : Controller
-    {
+namespace Cow.Controllers {
+    public class WhiteBoardController : Controller {
         private BoardEntityManager _em = null;
 
         //------------------------------------------------------------------------------------------
@@ -24,21 +24,36 @@ namespace Cow.Controllers
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------				
         [Authorize]
-        public ActionResult List()
-        {
+        public ActionResult List() {
             /*cream mv*/
             ListBoardModelView mv = new ListBoardModelView() {
                 Boards = this._em.GetBoards(this.User)
             };
-            
+
             return View("List", mv);
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        [Authorize] [HttpPost]
+        [Authorize]
+        [HttpPost]
         public ActionResult Create(CreateBoardModelView mv) {
-            this._em.CreateBoard(this.User, mv.Name);
+            /*cream tabla in baza de date*/
+            Board b = this._em.CreateBoard(this.User, mv.Name);
+            ActiveBoard ab = BoardManager.Instance.GetBoard(b.Id);
+
+            /*adaugam userul in board*/
+            BoardManager.Instance.AddUser(b.Id, this.User.Identity.Name);
+
             return this.List();
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        [Authorize]
+        [HttpPost]
+        public ActionResult Load(int id) {
+            /*incarcam tabla*/
+            ActiveBoard board = BoardManager.Instance.GetBoard(id);
+            return Json(board);
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
@@ -51,19 +66,68 @@ namespace Cow.Controllers
         //------------------------------------------------------------------------------------------
         [Authorize]
         public ActionResult Open(int id) {
-            
+            Board board = this._em.GetBoard(id);
 
-            return View();
+            /*incarcam si tabla*/
+            BoardManager.Instance.GetBoard(id);
+
+            if (board != null)
+                return View(new BoardModelView { Id = board.Id, Name = board.Name });
+            else
+                return View("Index", "Home");
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         [Authorize]
-        public ActionResult Get()
-        {
-            return Json(new List<Change>() {
-                new Change() {Id = 1, Operation="delete"},
-                new Change() {Id = 1, Operation="delete"}
-            }, JsonRequestBehavior.AllowGet);
+        [HttpPost]
+        public ActionResult Get(int id) {
+            return Json(BoardManager.Instance.GetChanges(id, this.User));
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        [Authorize]
+        [HttpPost]
+        public ActionResult Push(Change change) {
+            BoardManager.Instance.PushChange(change.BoardId, change, this.User);
+
+            return Json(change);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        [Authorize]
+        [HttpPost]
+        public ActionResult Reserve(ReserveModelView mv) {
+            Board board = this._em.GetBoard(mv.Id);
+
+            ReserveResponseModelView response = new ReserveResponseModelView();
+
+            if (board != null) {
+
+                response.Ids = new List<int>();
+                for (int i = 0; i < mv.Count; i++)
+                    response.Ids.Add(i + board.Seed);
+                board.Seed += mv.Count;
+                this._em.SaveChanges();
+            }
+
+            return Json(response);
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        [Authorize]
+        [HttpPost]
+        public ActionResult Bool(BoolModelView mv) {
+            /*verificam tipul operatiei*/
+            Cow.PolygonClipper.PolygonClipper.OpType op = PolygonClipper.PolygonClipper.OpType.Union;
+
+            if (mv.Operation == "union")
+                op = PolygonClipper.PolygonClipper.OpType.Union;
+            if (mv.Operation == "difference")
+                op = PolygonClipper.PolygonClipper.OpType.Difference;
+            if (mv.Operation == "intersect")
+                op = PolygonClipper.PolygonClipper.OpType.Intersection;
+
+            return Json(new PolygonClipper.PolygonClipper().Clip(mv.Source, mv.Clip, op));
         }
     }
 }

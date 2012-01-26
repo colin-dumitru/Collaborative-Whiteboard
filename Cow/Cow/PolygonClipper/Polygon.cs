@@ -7,6 +7,6 @@ namespace Cow.PolygonClipper
 {
     public class Polygon
     {
-        public Point[] Points { get; set; }
+        public List<Point> Points { get; set; }
     }
 }

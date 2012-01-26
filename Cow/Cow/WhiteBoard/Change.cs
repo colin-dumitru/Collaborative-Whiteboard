@@ -8,14 +8,17 @@ namespace Cow.WhiteBoard {
     public class Change {
         public const String obj_widget = "widget";
         public const String obj_layer = "layer";
+        public const String obj_user = "layer";
 
         public const String op_add = "add";
         public const String op_change = "change";
         public const String op_remove = "remove";
 
+        /*id-ul tablei careia ii apartine*/
+        public int BoardId { get; set; }
         /*id-ul widgetului carei ii se aplica operatia*/
         public int Id { get; set; }
-        /*lipul de obiect afectat*/
+        /*tipul de obiect afectat*/
         public String Obj { get; set; } 
         /*modificarea produsa*/
         public String Operation { get; set; }

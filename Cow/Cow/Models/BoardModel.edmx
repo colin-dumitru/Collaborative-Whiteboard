@@ -18,6 +18,7 @@
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Seed" Type="int" Nullable="false" DefaultValue="0" />
   </EntityType>
   <EntityType Name="Layers">
     <Key>
@@ -67,6 +68,7 @@
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Owner" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" />
+          <Property Type="Int32" Name="Seed" Nullable="false" DefaultValue="0" />
         </EntityType>
         <EntityType Name="Layer">
           <Key>
@@ -111,6 +113,7 @@
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Owner" ColumnName="Owner" />
           <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Seed" ColumnName="Seed" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -168,7 +171,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="BoardModel" ZoomLevel="112">
-        <EntityTypeShape EntityType="Models.Board" Width="1.5" PointX="2.625" PointY="1.375" Height="1.59568359375" />
+        <EntityTypeShape EntityType="Models.Board" Width="1.5" PointX="2.625" PointY="1.375" Height="1.787985026041667" />
         <EntityTypeShape EntityType="Models.Layer" Width="1.5" PointX="6.875" PointY="1.5" Height="1.9802864583333331" />
         <EntityTypeShape EntityType="Models.Widget" Width="1.5" PointX="9.125" PointY="1.5" Height="2.3648893229166665" />
         <EntityTypeShape EntityType="Models.UserRight" Width="1.5" PointX="4.875" PointY="1.375" Height="1.787985026041667" />

@@ -31,6 +31,9 @@
     width: 50px;
     border-radius: 0px 10px 10px 0px;
     box-shadow: 0 0 10px #888;
+    z-index: 2;
+    position:relative;
+    
 }
 
 #toolContainer
@@ -89,9 +92,27 @@
 
 .userContainer
 {
-    width : 100px;
-    height : 60px;
-    background-color:#FFF;
+    position: absolute;
+    width : 200px;
+    height : 500px;
+    margin-top: 50px;
+    margin-left: 55px;
+    left: -205px;
+    background-color: #EEE;
+    border-radius: 0px 10px 10px 0px;
+    box-shadow: 0 0 10px #888;
+    padding: 5px;
+    z-index: 1;
+}
+
+#userContainer
+{
+    padding: 5px;
+}
+
+.user
+{
+    text-decoration: none;
 }
 
 .layers
@@ -120,19 +141,22 @@
 
 #widgetContainer 
 {
-    
+    padding: 5px;
+    overflow: auto;    
 }
 
 .layer
 {
     background-color: #DDD;
+    margin: 2px;
     border-radius: 5px;
     text-decoration: none;
 }
 
 .layer_selected
 {
-    background-color: #DAA;
+    background-color: #ACF;
+    margin: 2px;
     border-radius: 5px;
     text-decoration: none;    
 }
@@ -323,13 +347,14 @@
 
 .optionContainer 
 {
-    opacity: 0;
+    white-space: nowrap;
     position: absolute;
+    opacity: 0;
     height: 50px;
     min-width: 20px;
     background-color: #EEE;
     border-radius: 0px 10px 10px 0px;
-    z-index: 2;
+    z-index: 5;
 }
 
 .optionContainer > .colorBox
@@ -344,11 +369,69 @@
 
 .optionContainer > .combo
 {
-    margin-top: 5px;
-    margin-bottom: auto;
+    float : left;
+    margin : 5px;
+    width: 150px;
     font-size: 22px;
     background-color: #EEF;
     border-radius: 5px;
     border: 1px solid #222;
     padding: 5px;
+}
+
+.optionContainer > .input
+{
+    float : left;
+    margin : 5px;
+    font-size: 22px;
+    background-color: #EEF;
+    border-radius: 5px;
+    border: 1px solid #222;
+    padding: 5px;
+}
+
+.button
+{
+    color: #EEE;
+    text-decoration: none;
+    font: normal 14px arial, sans-serif;
+    border-radius: 5px;
+    border: 1px solid #FFF;
+    background: linear-gradient(top, #5e5e5e 1%,#444444 100%);
+    background: -moz-linear-gradient(top, #5e5e5e 1%, #444444 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#5e5e5e), color-stop(100%,#444444)); /* Chrome,Safari4+ */
+    
+}
+
+.button:hover
+{
+    color: #EEE;
+    text-decoration: none;
+    font: normal 14px arial, sans-serif;
+    border-radius: 5px;
+    border: 1px solid #FFF;
+    background: linear-gradient(top, #a0a0a0 0%,#c9c9c9 100%); /* W3C */
+    background: -moz-linear-gradient(top, #a0a0a0 0%, #c9c9c9 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a0a0a0), color-stop(100%,#c9c9c9)); /* Chrome,Safari4+ */
+    
+}
+
+.handle
+{
+    position: absolute;
+    background-image: url("/Images/handle.png");
+    width: 13px;
+    height: 25px;
+    right: -13px;
+    top: 250px;
+}
+
+.handle:hover
+{
+    position: absolute;
+    background-image: url("/Images/handle_hover.png");
+    width: 13px;
+    height: 25px;
+    right: -13px;
+    top: 250px;
 }
