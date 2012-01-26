@@ -15,7 +15,8 @@ User.prototype.Element = null;
 ----------------------Client Application-----------------------------------
 ---------------------------------------------------------------------------
 */
-var App = function (canvas, toolContainer, optionsContainer, layerContainer, widgetContainer, userContainer) {
+var App = function (canvas, toolContainer, optionsContainer, layerContainer, widgetContainer,
+                    userContainer, inputContainer) {
     if (canvas == null) throw "Canvas cannot be null";
     if (toolContainer == null) throw "Tool contnainer cannot be null";
     if (optionsContainer == null) throw "Options contnainer cannot be null";
@@ -29,6 +30,7 @@ var App = function (canvas, toolContainer, optionsContainer, layerContainer, wid
     this._widgetContainer = widgetContainer;
     this._userContainer = userContainer;
     this._optionsContainer = optionsContainer;
+    this._inputContainer = inputContainer;
 }
 
 App.prototype._canvas = null;
@@ -37,6 +39,7 @@ App.prototype._layerContainer = null;
 App.prototype._widgetContainer = null;
 App.prototype._userContainer = null;
 App.prototype._optionsContainer = null;
+App.prototype._inputContainer = null;
 
 App.prototype._toolBox = null;
 App.prototype._whiteBoard = null;
@@ -58,8 +61,9 @@ App.prototype.Initialize = function () {
     /*factory-ul*/
     this._factory = new Factory()
     this._factory.AddBuilder("polygon", function (op) { return new PolygonWidget(op); });
+    this._factory.AddBuilder("circle", function (op) { return new CircleWidget(op); });
     this._factory.AddBuilder("image", function (op) { return new ImageWidget(op); });
-    this._factory.AddBuilder("text", function (op) { return new TextWidget(op); });
+    this._factory.AddBuilder("text", function (op) { return new TextWidget(op, that._inputContainer, that._canvas); });
     this._factory.AddBuilder("brush", function (op) { return new BrushWidget(op); });
 
     /*toolboxul*/
@@ -75,6 +79,7 @@ App.prototype.Initialize = function () {
     /*adaugam tooluril initile*/
     this._toolBox.AddTool(new SelectTool(this._toolBox, this._whiteBoard, this._factory));
     this._toolBox.AddTool(new RectangleTool(this._toolBox, this._whiteBoard, this._factory));
+    this._toolBox.AddTool(new PolygonTool(this._toolBox, this._whiteBoard, this._factory));
     this._toolBox.AddTool(new TextTool(this._toolBox, this._whiteBoard, this._factory));
     this._toolBox.AddTool(new ImageTool(this._toolBox, this._whiteBoard, this._factory));
     this._toolBox.AddTool(new BrushTool(this._toolBox, this._whiteBoard, this._factory));
@@ -86,7 +91,7 @@ App.prototype.Initialize = function () {
     this.Load();
 
     /*cerem serverului periodic schimbarile produse*/
-    window.setInterval(function () { that.GetChanges(); }, 2000);
+    window.setInterval(function () { that.GetChanges(); }, 300);
 }
 /*
 ----------------------------------------------------------------------------------------------------
@@ -132,8 +137,17 @@ App.prototype._GetWidgetChange = function (obj) {
         var widget = this._whiteBoard.GetLayer(change.LayerId).GetWidget(change.Id);
         widget.Deserialize(JSON.parse(change.Data));
         widget.Invalidate();
+
+        /*modificam ordinea in care apare layer-ul*/
+        widget.Parent.SwitchWidgets(widget.Order, change.Order);
+        if (widget.Element.previousSibling == null) return;
+        var sibling = widget.Element.previousSibling;
+        /*schimbam si elementele din fereastra*/
+        this._widgetContainer.removeChild(widget.Element);
+        this._widgetContainer.insertBefore(widget.Element, sibling);
     } else if (obj.Operation == "remove") {
         this._whiteBoard.GetLayer(change.LayerId).RemoveWidget(change.Id);
+        this._whiteBoard.GetLayer(change.LayerId).Invalidate();
     }
 }
 /*
@@ -149,10 +163,18 @@ App.prototype._GetLayerChange = function (obj) {
         layer.Order = change.Order;
         this._whiteBoard.PushLayer(layer);
     } if (obj.Operation == "change") {
-        /*cream un widget nou*/
+        /*modificam numele*/
         var layer = this._whiteBoard.GetLayer(change.Id);
         layer.Name = change.Name;
         layer.Element.innerText = change.Name;
+
+        /*modificam ordinea in care apare layer-ul*/
+        this._whiteBoard.SwitchLayers(layer.Order, change.Order);
+        if (layer.Element.previousSibling == null) return;
+        var sibling = layer.Element.previousSibling;
+        /*schimbam si elementele din fereastra*/
+        this._layerContainer.removeChild(layer.Element);
+        this._layerContainer.insertBefore(layer.Element, sibling);
     } else if (obj.Operation == "remove") {
         this._whiteBoard.RemoveLayer(change.Id);
     }
@@ -382,13 +404,17 @@ App.prototype._LayerSelected = function (layer) {
 ----------------------------------------------------------------------------------------------------
 */
 App.prototype._WidgetSelected = function (widget) {
+    if (widget == null)
+        return;
+
     /*deselectam restul layer-urilor*/
     $(this._widgetContainer).find("li").each(function () {
         this.className = "layer";
     });
 
     /*selectam layer-ul*/
-    widget.Element.className = "layer_selected";
+    if (widget.Element != null)
+        widget.Element.className = "layer_selected";
 }
 /*
 ----------------------------------------------------------------------------------------------------
@@ -437,6 +463,7 @@ App.prototype._WidgetAdded = function (layer, widget) {
 
     $(element).focusout(function () {
         widget.Name = widget.Element.innerText;
+        widget.Sync();
     });
 
     /*afisam widgetul nou doar daca se afla in layer-ul activ*/
@@ -467,11 +494,14 @@ App.prototype.RemoveSelectedWidget = function () {
     if (this._whiteBoard.ActiveWidget == null)
         return;
 
+    var parent = this._whiteBoard.ActiveWidget.Parent;
+
     /*spune-m serverului sa scoata widgetul*/
     this._whiteBoard.ActiveWidget.Sync("remove");
     /*il scoatem din lista de la noi*/
-    this._whiteBoard.ActiveWidget.Parent.RemoveWidget(this._whiteBoard.ActiveWidget.Id);    
-    this._whiteBoard.SetActiveWidget(null);
+    parent.RemoveWidget(this._whiteBoard.ActiveWidget.Id);
+    parent.Invalidate();
+    //this._whiteBoard.SetActiveWidget(null);
 }
 /*
 ----------------------------------------------------------------------------------------------------
@@ -497,42 +527,87 @@ App.prototype._WidgetRemoved = function (layer, widget) {
 ----------------------------------------------------------------------------------------------------
 */
 App.prototype.MoveSelectedLayerUp = function () {
-    var that = this;
+    if (this._whiteBoard.ActiveLayer == null)
+        return;
 
-    /*iteram prin toate elementele si verificam care sunt selectate*/
-    $(this._layerContainer).find("li").each(function () {
-        if (this.className == "layer_selected") {
-            var previous = this.previousSibling;
+    /*schimbam cu layer-ul precedent*/
+    this._whiteBoard.SwitchLayers(this._whiteBoard.ActiveLayer.Order, this._whiteBoard.ActiveLayer.Order - 1);
 
-            that._layerContainer.removeChild(this);
-            that._layerContainer.insertBefore(this, previous);
+    if (this._whiteBoard.ActiveLayer.Element.previousSibling == null)
+        return;
+    var sibling = this._whiteBoard.ActiveLayer.Element.previousSibling;
 
-            var pos = that._whiteBoard.GetLayerPosition(this.layer.Id);
-            that._whiteBoard.SwitchLayers(pos, pos + 1);
-        }
-    });
+    /*schimbam si elementele din fereastra*/
+    this._layerContainer.removeChild(this._whiteBoard.ActiveLayer.Element);
+    this._layerContainer.insertBefore(this._whiteBoard.ActiveLayer.Element, sibling);
+    /*sincronizam cu serverul*/
+    this._whiteBoard.ActiveLayer.Sync();
 }
 /*
 ----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 */
 App.prototype.MoveSelectedLayerDown = function () {
-    var that = this;
+    if (this._whiteBoard.ActiveLayer == null)
+        return;
 
-    /*iteram prin toate elementele si verificam care sunt selectate*/
-    $(this._layerContainer).find("li").each(function () {
-        if (this.className == "layer_selected") {
-            var next = null;
-            if (this.nextSibling != null)
-                next = this.nextSibling.nextSibling;
+    /*schimbam cu layer-ul precedent*/
+    this._whiteBoard.SwitchLayers(this._whiteBoard.ActiveLayer.Order, this._whiteBoard.ActiveLayer.Order + 1);
 
-            that._layerContainer.removeChild(this);
-            that._layerContainer.insertBefore(this, next);
+    if (this._whiteBoard.ActiveLayer.Element.nextSibling == null)
+        return;
+    var sibling = this._whiteBoard.ActiveLayer.Element.nextSibling.nextSibling;
 
-            var pos = that._whiteBoard.GetLayerPosition(this.layer.Id);
-            that._whiteBoard.SwitchLayers(pos, pos - 1);
-        }
-    });
+    /*schimbam si elementele din fereastra*/
+    this._layerContainer.removeChild(this._whiteBoard.ActiveLayer.Element);
+    this._layerContainer.insertBefore(this._whiteBoard.ActiveLayer.Element, sibling);
+    /*sincronizam cu serverul*/
+    this._whiteBoard.ActiveLayer.Sync();
+}
+/*
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+*/
+App.prototype.MoveSelectedWidgetUp = function () {
+    if (this._whiteBoard.ActiveWidget == null)
+        return;
+
+    /*schimbam cu layer-ul precedent*/
+    this._whiteBoard.ActiveWidget.Parent.SwitchWidgets(this._whiteBoard.ActiveWidget.Order,
+                                                     this._whiteBoard.ActiveWidget.Order - 1);
+
+    if (this._whiteBoard.ActiveWidget.Element.previousSibling == null)
+        return;
+    var sibling = this._whiteBoard.ActiveWidget.Element.previousSibling;
+
+    /*schimbam si elementele din fereastra*/
+    this._widgetContainer.removeChild(this._whiteBoard.ActiveWidget.Element);
+    this._widgetContainer.insertBefore(this._whiteBoard.ActiveWidget.Element, sibling);
+    /*sincronizam cu serverul*/
+    this._whiteBoard.ActiveWidget.Sync();
+}
+/*
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+*/
+App.prototype.MoveSelectedWidgetDown = function () {
+    if (this._whiteBoard.ActiveWidget == null)
+        return;
+
+    /*schimbam cu layer-ul precedent*/
+    this._whiteBoard.ActiveWidget.Parent.SwitchWidgets(this._whiteBoard.ActiveWidget.Order,
+                                                     this._whiteBoard.ActiveWidget.Order + 1);
+
+    if (this._whiteBoard.ActiveWidget.Element.nextSibling == null)
+        return;
+    var sibling = this._whiteBoard.ActiveWidget.Element.nextSibling.nextSibling;
+
+    /*schimbam si elementele din fereastra*/
+    this._widgetContainer.removeChild(this._whiteBoard.ActiveWidget.Element);
+    this._widgetContainer.insertBefore(this._whiteBoard.ActiveWidget.Element, sibling);
+    /*sincronizam cu serverul*/
+    this._whiteBoard.ActiveWidget.Sync();
+
 }
 /*
 ----------------------------------------------------------------------------------------------------

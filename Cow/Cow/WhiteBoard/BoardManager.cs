@@ -6,10 +6,11 @@ using System.Security.Principal;
 using Cow.Models;
 using System.Web.Script.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Timers;
 
 
 namespace Cow.WhiteBoard {
-    public class BoardManager {
+    public class BoardManager{
         private Dictionary<String, ActiveUser> _connectedUsers = new Dictionary<string, ActiveUser>();
 
         /*instanta unica a clasei*/
@@ -28,29 +29,19 @@ namespace Cow.WhiteBoard {
         CowEntities _em = new CowEntities();
         /*lista de table incarcate din baza d date*/
         Dictionary<int, ActiveBoard> _activeBoards = new Dictionary<int, ActiveBoard>();
+        /*timerul ce va apela salvarea*/
+        Timer _timer = new Timer(10000);
 
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------ 
         public BoardManager() {
-
+            this._timer.Elapsed += new ElapsedEventHandler(TimerElapsed);
+            this._timer.Start();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        ~BoardManager() {
-            /*refacem campul order pentru widgeturi si layere */
-            foreach (ActiveBoard b in this._activeBoards.Values) {
-                for (int i = 0; i < b.LayerStack.Count(); i++) {
-                    ActiveLayer layer = b.LayerStack[i];
-                    layer.LayerEntity.Order = i;
-                    for (int j = 0; j < layer.WidgetsStack.Count(); j++) {
-                        ActiveWidget widget = layer.WidgetsStack[j];
-                        widget.WidgetEntity.Order = j;
-                    }
-                }
-            }
-
-            /*salvam baza de date*/
-            this._em.SaveChanges();
+        void TimerElapsed(object sender, ElapsedEventArgs e) {
+            this.Save();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
@@ -198,7 +189,7 @@ namespace Cow.WhiteBoard {
 
                         /*delete from entities*/
                         Widget entity = board.Layers[cd.LayerId].GetWidget(cd.Id).WidgetEntity;
-                        this._em.DeleteObject(entity);
+                        this._em.Widgets.DeleteObject(entity);
                         /*delete the widget from the layer of that board*/
                         board.Layers[cd.LayerId].RemoveWidget(cd.Id);
                     } else if (change.Obj == "user") {
@@ -337,7 +328,7 @@ namespace Cow.WhiteBoard {
             var jss = new JavaScriptSerializer();
             ChangeDataWidget cd = null;
             try {
-                jss.Deserialize<ChangeDataWidget>(change.ChangeString);
+                cd = jss.Deserialize<ChangeDataWidget>(change.ChangeString);
             } catch {
                 return;
             }
@@ -433,5 +424,26 @@ namespace Cow.WhiteBoard {
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
 
+        public void Save() {
+            /*refacem campul order pentru widgeturi si layere */
+            foreach (ActiveBoard b in this._activeBoards.Values) {
+                for (int i = 0; i < b.LayerStack.Count(); i++) {
+                    ActiveLayer layer = b.LayerStack[i];
+                    layer.LayerEntity.Order = i;
+                    for (int j = 0; j < layer.WidgetsStack.Count(); j++) {
+                        ActiveWidget widget = layer.WidgetsStack[j];
+                        widget.WidgetEntity.Order = j;
+                    }
+                    
+                }
+            }
+
+            /*salvam baza de date*/
+            try {
+                this._em.SaveChanges();
+            } catch (Exception ex) {
+            }
+            
+        }
     }
 }

@@ -129,5 +129,11 @@ namespace Cow.Controllers {
 
             return Json(new PolygonClipper.PolygonClipper().Clip(mv.Source, mv.Clip, op));
         }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        protected override void Dispose(bool disposing) {
+            base.Dispose(disposing);
+        }
+
     }
 }
