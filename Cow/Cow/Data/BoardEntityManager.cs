@@ -23,17 +23,17 @@ namespace Cow.Data {
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        public BoardEntity CreateBoard(IPrincipal user, String name) {
+        public Board CreateBoard(IPrincipal user, String name) {
             if (!user.Identity.IsAuthenticated)
                 return null;
 
             /*cream o tabla goala*/
-            BoardEntity tmp = new BoardEntity();
+            Board tmp = new Board();
             tmp.Name = name;
             tmp.Owner = user.Identity.Name;
 
             /*o adaugam in abza noastra de date*/
-            this._em.AddToBoardEntities(tmp);
+            this._em.AddToBoards(tmp);
             /*salvam schimbarile*/
             this._em.SaveChanges();
 
@@ -46,21 +46,21 @@ namespace Cow.Data {
                 return false;
 
             /*verificam daca tabla exista*/
-            var boards = (from b in this._em.BoardEntities
+            var boards = (from b in this._em.Boards
                           where b.Id == boardId
                           select b).ToList() ;
 
             if (boards.Count <= 0)
                 return false;
 
-            BoardEntity board = boards[0];
+            Board board = boards[0];
 
             /*verificam daca a fost creat de userul dat*/
             if (board.Owner.Trim() != user.Identity.Name.Trim())
                 return false;
 
             /*daca totul este ok, stergem tabal*/
-            this._em.BoardEntities.DeleteObject(board);
+            this._em.Boards.DeleteObject(board);
             /*salvam modificarile*/
             this._em.SaveChanges();
 
@@ -68,9 +68,9 @@ namespace Cow.Data {
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        public BoardEntity GetBoard( int boardId) {
+        public Board GetBoard(int boardId) {
             /*verificam daca tabla exista*/
-            var boards = (from b in this._em.BoardEntities
+            var boards = (from b in this._em.Boards
                           where b.Id == boardId
                           select b).ToList();
 
@@ -82,20 +82,24 @@ namespace Cow.Data {
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
-        public List<BoardEntity> GetBoards(IPrincipal user) {
+        public List<Board> GetBoards(IPrincipal user) {
              if (!user.Identity.IsAuthenticated)
-                return new List<BoardEntity>();
+                 return new List<Board>();
 
-             return (from b in this._em.BoardEntities
+             return (from b in this._em.Boards
                         where b.Owner.Trim() == user.Identity.Name.Trim()
                         select b).ToList();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
 
-
         public void Dispose() {
             /*salvam modificarile in bd*/
+            this._em.SaveChanges();
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        public void SaveChanges() {
             this._em.SaveChanges();
         }
     }

@@ -6,48 +6,100 @@
     <edmx:StorageModels>
     <Schema Namespace="Models.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <EntityContainer Name="ModelsStoreContainer">
-    <EntitySet Name="BoardEntities" EntityType="Models.Store.BoardEntities" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="BoardDatas" EntityType="Models.Store.BoardDatas" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Boards" EntityType="Models.Store.Boards" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Layers" EntityType="Models.Store.Layers" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Widgets" EntityType="Models.Store.Widgets" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserRights" EntityType="Models.Store.UserRights" store:Type="Tables" Schema="dbo" />
   </EntityContainer>
-  <EntityType Name="BoardEntities">
+  <EntityType Name="Boards">
     <Key>
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Owner" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Seed" Type="int" Nullable="false" DefaultValue="0" />
   </EntityType>
-  <EntityType Name="BoardDatas">
+  <EntityType Name="Layers">
     <Key>
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
     <Property Name="BoardId" Type="int" Nullable="false" />
+    <Property Name="LayerId" Type="int" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Widgets">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="LayerId" Type="int" Nullable="false" />
+    <Property Name="Data" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="WidgetId" Type="int" Nullable="false" />
+    <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="UserRights">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BoardId" Type="int" Nullable="false" />
+    <Property Name="User" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Right" Type="int" Nullable="false" />
   </EntityType>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Models" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="CowEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="BoardEntities" EntityType="Models.BoardEntity" />
-          <EntitySet Name="BoardDatas" EntityType="Models.BoardData" />
+          <EntitySet Name="Boards" EntityType="Models.Board" />
+          <EntitySet Name="Layers" EntityType="Models.Layer" />
+          <EntitySet Name="Widgets" EntityType="Models.Widget" />
+          <EntitySet Name="UserRights" EntityType="Models.UserRight" />
         </EntityContainer>
-        <EntityType Name="BoardEntity">
+        <EntityType Name="Board">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Owner" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" />
+          <Property Type="Int32" Name="Seed" Nullable="false" DefaultValue="0" />
         </EntityType>
-        <EntityType Name="BoardData">
+        <EntityType Name="Layer">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="Data" Nullable="false" />
           <Property Type="Int32" Name="BoardId" Nullable="false" />
+          <Property Type="Int32" Name="LayerId" Nullable="false" />
+          <Property Type="Int32" Name="Order" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Widget">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="LayerId" Nullable="false" />
+          <Property Type="String" Name="Data" Nullable="false" />
+          <Property Type="Int32" Name="WidgetId" Nullable="false" />
+          <Property Type="String" Name="Type" Nullable="false" />
+          <Property Type="Int32" Name="Order" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserRight">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="BoardId" Nullable="false" />
+          <Property Type="String" Name="User" Nullable="false" />
+          <Property Type="Int32" Name="Right" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -55,21 +107,47 @@
     <edmx:Mappings>
     <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
   <EntityContainerMapping StorageEntityContainer="ModelsStoreContainer" CdmEntityContainer="CowEntities">
-    <EntitySetMapping Name="BoardEntities">
-      <EntityTypeMapping TypeName="IsTypeOf(Models.BoardEntity)">
-        <MappingFragment StoreEntitySet="BoardEntities">
+    <EntitySetMapping Name="Boards">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Board)">
+        <MappingFragment StoreEntitySet="Boards">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Owner" ColumnName="Owner" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Seed" ColumnName="Seed" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Layers">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Layer)">
+        <MappingFragment StoreEntitySet="Layers">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+          <ScalarProperty Name="LayerId" ColumnName="LayerId" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
           <ScalarProperty Name="Name" ColumnName="Name" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="BoardDatas">
-      <EntityTypeMapping TypeName="IsTypeOf(Models.BoardData)">
-        <MappingFragment StoreEntitySet="BoardDatas">
+    <EntitySetMapping Name="Widgets">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Widget)">
+        <MappingFragment StoreEntitySet="Widgets">
           <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="LayerId" ColumnName="LayerId" />
           <ScalarProperty Name="Data" ColumnName="Data" />
+          <ScalarProperty Name="WidgetId" ColumnName="WidgetId" />
+          <ScalarProperty Name="Type" ColumnName="Type" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserRights">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.UserRight)">
+        <MappingFragment StoreEntitySet="UserRights">
+          <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+          <ScalarProperty Name="User" ColumnName="User" />
+          <ScalarProperty Name="Right" ColumnName="Right" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -92,9 +170,11 @@
     </Options>
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
-      <Diagram Name="BoardModel">
-        <EntityTypeShape EntityType="Models.BoardEntity" Width="1.5" PointX="3.25" PointY="1.125" Height="1.59568359375" />
-        <EntityTypeShape EntityType="Models.BoardData" Width="1.5" PointX="5.625" PointY="1.25" Height="1.59568359375" />
+      <Diagram Name="BoardModel" ZoomLevel="112">
+        <EntityTypeShape EntityType="Models.Board" Width="1.5" PointX="2.625" PointY="1.375" Height="1.787985026041667" />
+        <EntityTypeShape EntityType="Models.Layer" Width="1.5" PointX="6.875" PointY="1.5" Height="1.9802864583333331" />
+        <EntityTypeShape EntityType="Models.Widget" Width="1.5" PointX="9.125" PointY="1.5" Height="2.3648893229166665" />
+        <EntityTypeShape EntityType="Models.UserRight" Width="1.5" PointX="4.875" PointY="1.375" Height="1.787985026041667" />
       </Diagram>
     </Diagrams>
   </Designer>

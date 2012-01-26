@@ -1,12 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
   <EntityContainerMapping StorageEntityContainer="ModelsStoreContainer" CdmEntityContainer="CowEntities">
-    <EntitySetMapping Name="BoardEntities">
-      <EntityTypeMapping TypeName="IsTypeOf(Models.BoardEntity)">
-        <MappingFragment StoreEntitySet="BoardEntities">
+    <EntitySetMapping Name="Boards">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Board)">
+        <MappingFragment StoreEntitySet="Boards">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Owner" ColumnName="Owner" />
           <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Seed" ColumnName="Seed" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Layers">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Layer)">
+        <MappingFragment StoreEntitySet="Layers">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+          <ScalarProperty Name="LayerId" ColumnName="LayerId" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Widgets">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Widget)">
+        <MappingFragment StoreEntitySet="Widgets">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="LayerId" ColumnName="LayerId" />
+          <ScalarProperty Name="Data" ColumnName="Data" />
+          <ScalarProperty Name="WidgetId" ColumnName="WidgetId" />
+          <ScalarProperty Name="Type" ColumnName="Type" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserRights">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.UserRight)">
+        <MappingFragment StoreEntitySet="UserRights">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+          <ScalarProperty Name="User" ColumnName="User" />
+          <ScalarProperty Name="Right" ColumnName="Right" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

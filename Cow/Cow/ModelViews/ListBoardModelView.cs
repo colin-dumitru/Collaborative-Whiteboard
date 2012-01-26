@@ -6,6 +6,6 @@ using Cow.Models;
 
 namespace Cow.ModelViews {
     public class ListBoardModelView {
-        public List<BoardEntity> Boards { get; set; }
+        public List<Board> Boards { get; set; }
     }
 }

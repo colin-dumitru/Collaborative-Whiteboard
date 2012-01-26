@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Microsoft.Web.Mvc;
 
 namespace Cow {
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
@@ -31,6 +32,8 @@ namespace Cow {
             AreaRegistration.RegisterAllAreas();
 
             RegisterRoutes(RouteTable.Routes);
+            var provider = new JsonValueProviderFactory();
+            ValueProviderFactories.Factories.Add(new JsonValueProviderFactory());
         }
     }
 }

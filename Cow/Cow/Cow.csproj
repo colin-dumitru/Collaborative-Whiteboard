@@ -35,6 +35,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Web.Mvc">
+      <HintPath>..\References\Microsoft.Web.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -73,26 +76,35 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\WhiteBoardController.cs" />
     <Compile Include="Data\BoardEntityManager.cs" />
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
-    <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\BoardModel.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>BoardModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="ModelViews\BoardModelView.cs" />
+    <Compile Include="ModelViews\BoolModelView.cs" />
     <Compile Include="ModelViews\CreateBoardModelView.cs" />
     <Compile Include="ModelViews\ListBoardModelView.cs" />
+    <Compile Include="ModelViews\ReserveModelView.cs" />
+    <Compile Include="ModelViews\ReserveResponseModelView.cs" />
+    <Compile Include="PolygonClipper\clipper.cs" />
+    <Compile Include="PolygonClipper\Point.cs" />
+    <Compile Include="PolygonClipper\Polygon.cs" />
+    <Compile Include="PolygonClipper\PolygonClipper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WhiteBoard\Board.cs" />
+    <Compile Include="WhiteBoard\ActiveBoard.cs" />
     <Compile Include="WhiteBoard\BoardManager.cs" />
     <Compile Include="WhiteBoard\Change.cs" />
-    <Compile Include="WhiteBoard\Layer.cs" />
-    <Compile Include="WhiteBoard\IWidget.cs" />
-    <Compile Include="WhiteBoard\RectangleWidget.cs" />
-    <Compile Include="WhiteBoard\User.cs" />
-    <Compile Include="WhiteBoard\WidgetFactory.cs" />
+    <Compile Include="WhiteBoard\ActiveLayer.cs" />
+    <Compile Include="WhiteBoard\ActiveWidget.cs" />
+    <Compile Include="WhiteBoard\ChangeDataWidget.cs" />
+    <Compile Include="WhiteBoard\ChangeDataLayer.cs" />
+    <Compile Include="WhiteBoard\ActiveUser.cs" />
+    <Compile Include="WhiteBoard\ChangeDataUser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\cow_db.mdf" />
@@ -103,7 +115,6 @@
     <Content Include="Content\color_select.css" />
     <Content Include="Content\WhiteBoard.css" />
     <Content Include="Global.asax" />
-    <Content Include="Models\BoardModel.edmx.sql" />
     <Content Include="Models\Sql\BoardModel.edmx.sql" />
     <Content Include="Scripts\App.js" />
     <Content Include="Scripts\color_select.js" />
