@@ -361,7 +361,10 @@ namespace Cow.WhiteBoard {
                 /*il stergem din pozitia existenta*/
                 l.WidgetsStack.Remove(w);
                 /*il reinseram*/
-                l.WidgetsStack.Insert(cd.Order, w);
+                if (l.WidgetsStack.Count <= cd.Order)
+                    l.WidgetsStack.Add(w);
+                else
+                    l.WidgetsStack.Insert(cd.Order, w);
             }
         }
         //------------------------------------------------------------------------------------------

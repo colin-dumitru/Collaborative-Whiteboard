@@ -426,7 +426,7 @@ ImageWidget.prototype.KeyDown = function (e) {
 }
 /*
 ---------------------------------------------------------------------------
------------------------------PixelData Widget------------------------------
+---------------------------------Brush Widget------------------------------
 ---------------------------------------------------------------------------
 */
 var BrushWidget = function (options) {
@@ -454,13 +454,13 @@ BrushWidget.prototype.MaxY = 0;
 BrushWidget.prototype.Draw = function (context) {
     /*cream imaginea daca nu exista*/
     if (this.Image == null)
-        this.UpdateBounds();
+        this._UpdateBounds();
     /*desenam textul*/
     context.drawImage(this.Image, this.Polygon.Position.X - Math.abs(this.MinX) - this.Width,
                      this.Polygon.Position.Y - Math.abs(this.MinY) - this.Width);
 }
 
-BrushWidget.prototype.UpdateBounds = function () {
+BrushWidget.prototype._UpdateBounds = function () {
     if (this.Image == null) {
         var that = this;
 
@@ -567,8 +567,8 @@ Factory.prototype._GetUniqueId = function () {
         /*daca nu, trebuie sa facem o noua cerere la server*/
         $.ajax({
             url: "/WhiteBoard/Reserve",
-            /*rezervam 1000 de id-uri unice*/
-            data: { Count: 1000, Id : document.BoardId },
+            /*rezervam 20 de id-uri unice*/
+            data: { Count: 20, Id : document.BoardId },
             dataType: "json",
             async: false,
             type: "post",
