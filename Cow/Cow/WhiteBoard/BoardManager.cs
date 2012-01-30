@@ -49,6 +49,72 @@ namespace Cow.WhiteBoard {
             /*salvam bd si il stergem din activeboards*/
             this._em.SaveChanges();
             this._activeBoards.Remove(board.BoardEntity.Id);
+        }//------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        public void DuplicateBoard(int boardId)
+        {
+            // scoatem entitatea si ii copiem valorile
+            var res = (from d in this._em.Boards
+                       where d.Id == boardId
+                       select d).ToList();
+
+            if (res.Count() < 1)
+                return;
+
+            Board b = res[0];
+            Board newBoard = new Board();
+            newBoard.Name = b.Name + " Copy";
+            newBoard.Owner = b.Owner;
+            newBoard.Seed = b.Seed;
+            this._em.AddToBoards(newBoard);
+
+            //scoatem fiecare layer continut si generam entitati duplicate
+            var res1 = (from d in this._em.Layers
+                        where d.BoardId == boardId
+                        select d).ToList();
+
+            foreach (Layer l in res1)
+            {
+                Layer newLayer = new Layer();
+                newLayer.BoardId = l.BoardId;
+                newLayer.LayerId = l.LayerId;
+                newLayer.Name = l.Name;
+                newLayer.Order = l.Order;
+                this._em.AddToLayers(newLayer);
+
+                /* duplicam widgeturile pentru fiecare layer in bd*/
+                var res2 = (from d in this._em.Widgets
+                            where d.LayerId == l.LayerId
+                            select d).ToList();
+
+                foreach (Widget w in res2)
+                {
+                    Widget newWidget = new Widget();
+                    newWidget.LayerId = w.LayerId;
+                    newWidget.WidgetId = w.WidgetId;
+                    newWidget.Type = w.Type;
+                    newWidget.Data = w.Data;
+                    newWidget.Name = w.Name;
+                    newWidget.Order = w.Order;
+
+                    this._em.AddToWidgets(newWidget);
+                }
+            }
+
+            /* duplicam drepturile userilor asupra boardului*/
+            var res3 = (from d in this._em.UserRights
+                        where d.BoardId == boardId
+                        select d).ToList();
+
+            foreach (UserRight ur in res3)
+            {
+                UserRight u = new UserRight();
+                u.BoardId = ur.BoardId;
+                u.Right = ur.Right;
+                u.User = ur.User;
+                this._em.AddToUserRights(u);
+            }
+            this._em.SaveChanges();
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
