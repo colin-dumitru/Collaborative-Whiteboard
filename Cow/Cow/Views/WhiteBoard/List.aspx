@@ -12,17 +12,22 @@
         <h2>
             Your White Boards
         </h2>
-
+        
+        <div class="add_board">
         <%using (Html.BeginForm("Create", "WhiteBoard", FormMethod.Post)) { %>
         <%:Html.TextBox("Name") %>
-            <input type="submit" value="Add Board" />
+        <button type="submit">Add Board</button>
         <%} %>
-        <ul>
+        </div>
+        <ul class="board_list">
             <% foreach (var board in ViewData.Model.Boards) { %>
             <li>
                 <%:board.Name %>
+                <div class="board_buttons">
                 <%:Html.ActionLink("Delete", "Delete", "WhiteBoard", new RouteValueDictionary() { {"id" , board.Id}}, null)%>
-                <%:Html.ActionLink(">>", "Open", "WhiteBoard", new RouteValueDictionary() { {"id" , board.Id}}, null)%>
+                <%:Html.ActionLink("Duplicate", "Duplicate", "WhiteBoard", new RouteValueDictionary() { { "id", board.Id } }, null)%>
+                <%:Html.ActionLink("Go", "Open", "WhiteBoard", new RouteValueDictionary() { {"id" , board.Id}}, null)%>
+                </div>
             </li>
             <%   } %>
         </ul>

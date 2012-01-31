@@ -676,7 +676,7 @@ Layer.prototype.InsertWidget = function (widget) {
     this._widgets.splice(widget.Order, 0, widget);
     /*facem update la order-ul celorlate widgeturi*/
     for (var i = widget.Order + 1; i < this._widgets.length; i++) {
-        this._widgets[i].Oder = i;
+        this._widgets[i].Order = i;
     }
 
     this._widgetTable[widget.Id] = widget;
@@ -724,7 +724,7 @@ Layer.prototype.RemoveWidget = function (widgetId) {
         }
         /*facem update la order-ul celorlate widgeturi*/
         for (; i < this._widgets.length; i++) {
-            this._widgets[i].Oder = i;
+            this._widgets[i].Order = i;
         }
 
         /*setam informatiile evenimentelor*/

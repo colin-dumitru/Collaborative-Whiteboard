@@ -107,6 +107,8 @@ App.prototype.GetChanges = function () {
         type: "post",
         data: { id: document.BoardId },
         success: function (data) {
+            var changed = false;
+
             for (var c in data) {
                 if (data[c].Obj == "widget") {
                     that._GetWidgetChange(data[c]);
@@ -115,8 +117,12 @@ App.prototype.GetChanges = function () {
                 } else if (data[c].Obj == "user") {
                     that._GetUserChange(data[c]);
                 }
+
+                changed = true;
             }
 
+            if (changed)
+                that._whiteBoard.Draw();
         }
     });
 }
@@ -136,11 +142,11 @@ App.prototype._GetWidgetChange = function (obj) {
         /*cream un widget nou*/
         var widget = this._whiteBoard.GetLayer(change.LayerId).GetWidget(change.Id);
         widget.Deserialize(JSON.parse(change.Data));
-        widget.Invalidate();
 
         /*modificam ordinea in care apare layer-ul*/
         widget.Parent.SwitchWidgets(widget.Order, change.Order);
-        if (widget.Element.previousSibling == null) return;
+        widget.Element.innerText = widget.Name;
+        if (widget.Element == null || widget.Element.previousSibling == null) return;
         var sibling = widget.Element.previousSibling;
         /*schimbam si elementele din fereastra*/
         this._widgetContainer.removeChild(widget.Element);
@@ -397,7 +403,8 @@ App.prototype._LayerSelected = function (layer) {
 
     /*selectam layer-ul*/
     this._SetWidgetList(layer);
-    layer.Element.className = "layer_selected";
+    if(layer != null && layer.Element != null)
+        layer.Element.className = "layer_selected";
 }
 /*
 ----------------------------------------------------------------------------------------------------
@@ -448,6 +455,7 @@ App.prototype._WidgetAdded = function (layer, widget) {
     element.innerText = widget.Name;
     element.widget = widget;
     widget.Element = element;
+    element.widget = widget;
 
     $(widget).bind("sync", function (e) { that._WidgetSync(e.target, e.operation); });
 
@@ -462,8 +470,8 @@ App.prototype._WidgetAdded = function (layer, widget) {
     });
 
     $(element).focusout(function () {
-        widget.Name = widget.Element.innerText;
-        widget.Sync();
+        this.widget.Name = this.innerText;
+        this.widget.Sync();
     });
 
     /*afisam widgetul nou doar daca se afla in layer-ul activ*/
@@ -494,12 +502,13 @@ App.prototype.RemoveSelectedWidget = function () {
     if (this._whiteBoard.ActiveWidget == null)
         return;
 
+    var widget = this._whiteBoard.ActiveWidget;
     var parent = this._whiteBoard.ActiveWidget.Parent;
 
-    /*spune-m serverului sa scoata widgetul*/
-    this._whiteBoard.ActiveWidget.Sync("remove");
     /*il scoatem din lista de la noi*/
-    parent.RemoveWidget(this._whiteBoard.ActiveWidget.Id);
+    parent.RemoveWidget(widget.Id);
+    /*spune-m serverului sa scoata widgetul*/
+    widget.Sync("remove");
     parent.Invalidate();
     //this._whiteBoard.SetActiveWidget(null);
 }
@@ -585,6 +594,8 @@ App.prototype.MoveSelectedWidgetUp = function () {
     this._widgetContainer.insertBefore(this._whiteBoard.ActiveWidget.Element, sibling);
     /*sincronizam cu serverul*/
     this._whiteBoard.ActiveWidget.Sync();
+    /*redesenam in pagina*/
+    this._whiteBoard.ActiveWidget.Invalidate();
 }
 /*
 ----------------------------------------------------------------------------------------------------
@@ -607,6 +618,7 @@ App.prototype.MoveSelectedWidgetDown = function () {
     this._widgetContainer.insertBefore(this._whiteBoard.ActiveWidget.Element, sibling);
     /*sincronizam cu serverul*/
     this._whiteBoard.ActiveWidget.Sync();
+    this._whiteBoard.ActiveWidget.Invalidate();
 
 }
 /*

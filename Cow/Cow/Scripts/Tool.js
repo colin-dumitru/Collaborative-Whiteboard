@@ -301,10 +301,12 @@ ToolBox.prototype._CreateToolElement = function (tool) {
     var res = document.createElement("div");
     var that = this;
     var currentTool = tool;
+    var toogle = false;
 
     /*evenimentele*/
     res.onclick = function () {
         that._ChangeToolSelection(currentTool);
+        that._ChangeToolHover(currentTool, toogle = !toogle);
     }
 
     /*evenimentele*/

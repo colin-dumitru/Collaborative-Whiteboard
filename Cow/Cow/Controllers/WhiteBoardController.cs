@@ -39,10 +39,17 @@ namespace Cow.Controllers {
         public ActionResult Create(CreateBoardModelView mv) {
             /*cream tabla in baza de date*/
             Board b = this._em.CreateBoard(this.User, mv.Name);
-            ActiveBoard ab = BoardManager.Instance.GetBoard(b.Id);
-
             /*adaugam userul in board*/
             BoardManager.Instance.AddUser(b.Id, this.User.Identity.Name);
+
+            return this.List();
+        }
+        //------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------
+        [Authorize]
+        public ActionResult Duplicate(int id) {
+            /*cream tabla in baza de date*/
+            BoardManager.Instance.DuplicateBoard(id);
 
             return this.List();
         }
@@ -81,14 +88,24 @@ namespace Cow.Controllers {
         [Authorize]
         [HttpPost]
         public ActionResult Get(int id) {
-            return Json(BoardManager.Instance.GetChanges(id, this.User));
+            try {
+                return Json(BoardManager.Instance.GetChanges(id, this.User));
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
+
+            return null;
         }
         //------------------------------------------------------------------------------------------
         //------------------------------------------------------------------------------------------
         [Authorize]
         [HttpPost]
         public ActionResult Push(Change change) {
-            BoardManager.Instance.PushChange(change.BoardId, change, this.User);
+            try {
+                BoardManager.Instance.PushChange(change.BoardId, change, this.User);
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
 
             return Json(change);
         }

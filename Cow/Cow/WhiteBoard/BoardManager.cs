@@ -67,6 +67,8 @@ namespace Cow.WhiteBoard {
             newBoard.Owner = b.Owner;
             newBoard.Seed = b.Seed;
             this._em.AddToBoards(newBoard);
+            /*salvam modificarile sa generam un id nou*/
+            this._em.SaveChanges();
 
             //scoatem fiecare layer continut si generam entitati duplicate
             var res1 = (from d in this._em.Layers
@@ -76,11 +78,13 @@ namespace Cow.WhiteBoard {
             foreach (Layer l in res1)
             {
                 Layer newLayer = new Layer();
-                newLayer.BoardId = l.BoardId;
+                newLayer.BoardId = newBoard.Id;
                 newLayer.LayerId = l.LayerId;
                 newLayer.Name = l.Name;
                 newLayer.Order = l.Order;
+
                 this._em.AddToLayers(newLayer);
+                this._em.SaveChanges();
 
                 /* duplicam widgeturile pentru fiecare layer in bd*/
                 var res2 = (from d in this._em.Widgets
@@ -90,7 +94,7 @@ namespace Cow.WhiteBoard {
                 foreach (Widget w in res2)
                 {
                     Widget newWidget = new Widget();
-                    newWidget.LayerId = w.LayerId;
+                    newWidget.LayerId = newLayer.Id;
                     newWidget.WidgetId = w.WidgetId;
                     newWidget.Type = w.Type;
                     newWidget.Data = w.Data;
@@ -178,11 +182,15 @@ namespace Cow.WhiteBoard {
                     newWidget.Data = w.Data;
                     newWidget.Name = w.Name;
 
-                    activeLayerPair.Value.Widgets.Add(newWidget.WidgetId, newWidget);
-                    if (w.Order > activeLayerPair.Value.WidgetsStack.Count)
-                        activeLayerPair.Value.WidgetsStack.Add(newWidget);
-                    else
-                        activeLayerPair.Value.WidgetsStack.Insert(w.Order, newWidget);
+                    try {
+                        activeLayerPair.Value.Widgets.Add(newWidget.WidgetId, newWidget);
+                        if (w.Order > activeLayerPair.Value.WidgetsStack.Count)
+                            activeLayerPair.Value.WidgetsStack.Add(newWidget);
+                        else
+                            activeLayerPair.Value.WidgetsStack.Insert(w.Order, newWidget);
+                    } catch (Exception ex) {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
             }
 
@@ -346,7 +354,8 @@ namespace Cow.WhiteBoard {
                 lock (b.Layers[cd.LayerId].WidgetsStack) {
                     b.Layers[cd.LayerId].WidgetsStack.Insert(cd.Order, newActiveWidget);
                 }
-            } catch (KeyNotFoundException) {
+            } catch (KeyNotFoundException ex) {
+                Console.WriteLine(ex.ToString());
             }
 
             this._em.AddToWidgets(newWidget);
@@ -480,6 +489,7 @@ namespace Cow.WhiteBoard {
             /*adaugam in bd*/
             lock (this._em.UserRights) {
                 this._em.UserRights.AddObject(user.Entity);
+                this._em.SaveChanges();
             }
             /*adaugam si in active board*/
             board.UsersTable.Add(user.Username, user);
@@ -511,6 +521,7 @@ namespace Cow.WhiteBoard {
             try {
                 this._em.SaveChanges();
             } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
             }
             
         }

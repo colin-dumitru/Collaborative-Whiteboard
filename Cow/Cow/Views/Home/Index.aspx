@@ -6,11 +6,14 @@
 
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="content">
+        <h2>
+            Welcome, 
+        </h2>
         <p>
-            Welcome blah blah blah
+             to the Collaborative White Board Application.
         </p>
         <p>
-            Visit your
+            To get started, please visit your
             <%:Html.ActionLink("WhiteBoard Page", "List", "WhiteBoard") %>
         </p>
     </div>
